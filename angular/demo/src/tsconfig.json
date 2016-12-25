@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "system",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "removeComments": true,
+    "declaration": true,
+    "outDir": "../dist",
+    "lib": ["es2015", "dom"],
+    "baseUrl": ".",
+    "paths": {
+      "ilib-ng": ["../../dist"]
+    }
+  },
+  "angularCompilerOptions": {
+    "skipTemplateCodegen": true,
+    "skipMetadataEmit": true
+  },
+  "filesGlob": [
+    "**/*.ts"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "removeComments": true,
+    "declaration": true,
+    "outDir": "../dist",
+    "lib": ["es2015", "dom"],
+    "baseUrl": ".",
+    "paths": {
+      "ilib": ["../../core/src"]
+    }
+  },
+  "angularCompilerOptions": {
+    "genDir": "./aot",
+    "skipTemplateCodegen": true
+  },
+  "filesGlob": [
+    "**/*.ts"
+  ]
+}

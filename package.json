@@ -1,0 +1,33 @@
+{
+  "name": "ilib",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "@angular/common": "2.4.1",
+    "@angular/compiler": "2.4.1",
+    "@angular/compiler-cli": "2.4.1",
+    "@angular/core": "2.4.1",
+    "@angular/forms": "2.4.1",
+    "@angular/http": "2.4.1",
+    "@angular/platform-browser": "2.4.1",
+    "@angular/platform-browser-dynamic": "2.4.1",
+    "core-js": "^2.4.1",
+    "node-static": "^0.7.9",
+    "rxjs": "^5.0.2",
+    "systemjs": "0.19.41",
+    "typescript": "~2.0.3",
+    "zone.js": "^0.7.4"
+  },
+  "scripts": {
+    "build:ng:src:generate": "node angular/generator.js",
+    "build:ng:src:compile": "ngc -p angular/src",
+    "build:ng:src": "npm run build:ng:src:generate -s && npm run build:ng:src:compile -s",
+    "build:ng:demo": "ngc -p angular/demo/src",
+    "build:ng": "npm run build:ng:src -s && npm run build:ng:demo -s",
+    "serve": "static -p 3000 -H '{\"Cache-Control\": \"no-cache, must-revalidate\"}'"
+  },
+  "author": "",
+  "license": "ISC"
+}
