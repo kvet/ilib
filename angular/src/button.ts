@@ -13,9 +13,21 @@ let CoreComponent = require('ilib/button').CoreComponent;
     selector: 'il-button',
     template: `<div [class.disabled]="component.disabled" (click)="component.clickHandler(e)"><ng-content></ng-content></div>`,
     styles: [`
-    div { display: inline-block; border: 1px solid red; padding: 10px 5px; transition: all linear .2s; }
-    .disabled { border: 1px solid gray; }
-`]
+        :host { 
+            display: inline-block;
+            border: 1px solid red;
+            border-radius: 5px;
+            padding: 5px 10px;
+            transition: all linear .2s;
+            color: #373a3c;
+            background-color: #fff;
+            border-color: #adadad
+        }
+        :host.disabled {
+            cursor: not-allowed;
+            opacity: .65
+        }
+    `]
 })
 export class IlButtonComponent {
     component: any;

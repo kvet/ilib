@@ -20,10 +20,24 @@ exports.template = (e) => {
         events: [{ name: 'click', handler: 'clickHandler' }]
     });
 };
-exports.styles = `
-    div { display: inline-block; border: 1px solid red; padding: 10px 5px; transition: all linear .2s; }
-    .disabled { border: 1px solid gray; }
-`;
+exports.styles = (e) => {
+    return `
+        ${e.host()} { 
+            display: inline-block;
+            border: 1px solid red;
+            border-radius: 5px;
+            padding: 5px 10px;
+            transition: all linear .2s;
+            color: #373a3c;
+            background-color: #fff;
+            border-color: #adadad
+        }
+        ${e.host()}.disabled {
+            cursor: not-allowed;
+            opacity: .65
+        }
+    `;
+}
 exports.events = ['onClick']
 exports.props = {
     disabled: false

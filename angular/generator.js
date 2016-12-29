@@ -15,6 +15,9 @@ stringifyTemplate.contentPlaceholder = () => {
     return `<ng-content></ng-content>`
 }
 
+let stringifyStyles = () => {};
+stringifyStyles.host = () => ':host';
+
 fs.writeFileSync(path.resolve(__dirname, './src/button.ts'), `
 import {
     Component,
@@ -29,7 +32,7 @@ let CoreComponent = require('ilib/button').CoreComponent;
 @Component({
     selector: 'il-button',
     template: \`${button.template(stringifyTemplate)}\`,
-    styles: [\`${button.styles}\`]
+    styles: [\`${button.styles(stringifyStyles)}\`]
 })
 export class IlButtonComponent {
     component: any;

@@ -1,0 +1,8 @@
+{
+  "passPerPreset": true,
+  "presets": [{
+    "passPerPreset": false,
+    "presets": [ "es2015" ]
+  }],
+  "plugins": ["transform-runtime"]
+}
