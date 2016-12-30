@@ -19,10 +19,10 @@ import {
     <input type="checkbox" [(ngModel)]="myBtn.disabled"/>
     <br/>
     <br/>
-    <il-button class="green" (onClick)="clicked('g')"><b>Hello World Again!</b></il-button>
+    <button ilibng class="green" (onClick)="clicked('g')"><b>Hello World Again!</b></button>
     <br/>
     <br/>
-    <il-button #btn [disabled]="false" (onClick)="clicked('g')">Hello World Again!</il-button>
+    <button ilibng #btn [disabled]="false" (onClick)="clicked('g')">Hello World Again!</button>
     <input type="checkbox" [(ngModel)]="btn.disabled"/>
 `
 })

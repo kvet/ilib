@@ -15,10 +15,14 @@ exports.CoreComponent = class {
 };
 
 exports.template = (e) => { 
-    return e('div', e.contentPlaceholder(), { 
-        classes: [{ name: 'disabled', getter: 'disabled' }],
-        events: [{ name: 'click', handler: 'clickHandler' }]
-    });
+    return e.host(
+        'button',
+        e.contentPlaceholder(),
+        { 
+            classes: [{ name: 'disabled', getter: 'disabled' }],
+            events: [{ name: 'click', handler: 'clickHandler' }]
+        }
+    );
 };
 exports.styles = (e) => {
     return `
@@ -30,11 +34,11 @@ exports.styles = (e) => {
             transition: all linear .2s;
             color: #373a3c;
             background-color: #fff;
-            border-color: #adadad
+            border-color: #adadad;
         }
         ${e.host()}.disabled {
             cursor: not-allowed;
-            opacity: .65
+            opacity: .65;
         }
     `;
 }

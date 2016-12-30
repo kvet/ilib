@@ -6,7 +6,8 @@ let cap = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-let stringifyTemplate = (tag, content, attrs) => {
+let stringifyTemplate = () => {};
+stringifyTemplate.host = (tag, content, attrs) => {
     let classes = (attrs.classes || []).map((klass) => {
         return `(this.component.${klass.getter} ? '${klass.name} ' : '')`;
     }).join(' + ');

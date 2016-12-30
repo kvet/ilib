@@ -16,7 +16,7 @@ export class Button extends Component {
     }
     render() {
         return  createElement(
-        'div',
+        'button',
         {
             'data-host-abc': true,
             className: this.props.className + ' ' + (this.component.disabled ? 'disabled ' : ''),

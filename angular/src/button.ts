@@ -4,14 +4,16 @@ import {
     NgModule,
     Input,
     Output,
-    EventEmitter
+    EventEmitter,
+    HostListener,
+    HostBinding
 } from '@angular/core';
 declare function require(params:any): any;
 let CoreComponent = require('ilib/button').CoreComponent;
 
 @Component({
-    selector: 'il-button',
-    template: `<div [class.disabled]="component.disabled" (click)="component.clickHandler(e)"><ng-content></ng-content></div>`,
+    selector: 'button[ilibng]',
+    template: `<ng-content></ng-content>`,
     styles: [`
         :host { 
             display: inline-block;
@@ -21,11 +23,11 @@ let CoreComponent = require('ilib/button').CoreComponent;
             transition: all linear .2s;
             color: #373a3c;
             background-color: #fff;
-            border-color: #adadad
+            border-color: #adadad;
         }
         :host.disabled {
             cursor: not-allowed;
-            opacity: .65
+            opacity: .65;
         }
     `]
 })
@@ -34,6 +36,14 @@ export class IlButtonComponent {
 
     @Input() disabled = false;
     @Output() onClick = new EventEmitter();
+
+        @HostBinding('class.disabled') get _host_class_disabled() {
+            return this.component.disabled;
+        }
+
+        @HostListener('click') _host_on_click(e) {
+            return this.component.clickHandler(e);
+        }
 
     constructor() {
         this.component = new CoreComponent({

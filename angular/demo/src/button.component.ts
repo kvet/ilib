@@ -5,10 +5,7 @@ import {
     Output,
     EventEmitter,
     HostBinding,
-    HostListener,
-    OnChanges,
-    DoCheck,
-    SimpleChanges
+    HostListener
 } from '@angular/core';
 
 @Component({
@@ -19,29 +16,19 @@ import {
     :host.disabled { border: 1px solid gray; }
 `]
 })
-export class MyButtonComponent implements OnChanges, DoCheck {
+export class MyButtonComponent {
     component: any;
 
     @Input() disabled = false;
     @Output() onClick = new EventEmitter();
 
-    @HostBinding('class.disabled') disabledClass = this.disabled;
+    @HostBinding('class.disabled') get disabledClass() {
+        return this.disabled;
+    };
     @HostListener('click') onClickHandler(e) {
         if(!this.disabled)
             this.onClick.emit(e);
     };
-
-    ngOnChanges(changes: SimpleChanges) {
-        console.log(changes);
-
-        if('disabled' in changes) {
-            this.disabledClass = changes['disabled'].currentValue;
-        }
-    }
-
-    ngDoCheck() {
-        this.disabledClass = this.disabled;
-    }
 }
 
 @NgModule({
