@@ -8,8 +8,7 @@ import {
     HostListener,
     HostBinding
 } from '@angular/core';
-declare function require(params:any): any;
-let CoreComponent = require('ilib/button').CoreComponent;
+import { ButtonComponent } from 'ilib';
 
 @Component({
     selector: 'button[ilibng]',
@@ -28,25 +27,24 @@ let CoreComponent = require('ilib/button').CoreComponent;
         :host.disabled {
             cursor: not-allowed;
             opacity: .65;
-        }
-    `]
+        }`]
 })
 export class IlButtonComponent {
-    component: any;
+    component: ButtonComponent;
 
     @Input() disabled = false;
     @Output() onClick = new EventEmitter();
 
-        @HostBinding('class.disabled') get _host_class_disabled() {
-            return this.component.disabled;
-        }
+            @HostBinding('class.disabled') get _host_class_disabled() {
+                return this.component.disabled;
+            }
 
-        @HostListener('click') _host_on_click(e) {
-            return this.component.clickHandler(e);
-        }
+            @HostListener('click') _host_on_click(e) {
+                return this.component.clickHandler(e);
+            }
 
     constructor() {
-        this.component = new CoreComponent({
+        this.component = new ButtonComponent({
             emitEvent: (name, e) => {
                 this[name].emit(e);
             },

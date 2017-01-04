@@ -18,7 +18,7 @@
       '@angular/forms': 'npm:@angular/forms/bundles/forms.umd.js',
       'rxjs': 'npm:rxjs',
       // ilib
-      'ilib': '../../core/src',
+      'ilib': '../../core/dist',
       'ilib-ng': '../dist'
     },
     packages: {

@@ -23,7 +23,7 @@ module.exports = {
     },
     resolve: {
         alias: {
-            'ilib': path.join(__dirname, '../../core/src'),
+            'ilib': path.join(__dirname, '../../core/dist'),
             'ilib-react': path.join(__dirname, '../dist')
         },
         extensions: ["", ".webpack.js", ".web.js", ".js", ".jsx"]
