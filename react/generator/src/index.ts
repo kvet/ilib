@@ -64,6 +64,9 @@ export class Button extends Component {
         return ${template}
     }
 }`;
-    fs.writeFileSync(path.resolve(__dirname, `../../src/${definition.fileName}.js`), content);
-    fs.writeFileSync(path.resolve(__dirname, `../../dist/${definition.fileName}.css`), styles);
+    fs.writeFileSync(path.resolve(__dirname, `../../code/src/${definition.fileName}.js`), content);
+    try {
+        fs.mkdirSync(path.resolve(__dirname, `../../code/dist`))
+    } catch(e) {}
+    fs.writeFileSync(path.resolve(__dirname, `../../code/dist/${definition.fileName}.css`), styles);
 }

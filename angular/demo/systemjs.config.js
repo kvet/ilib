@@ -19,7 +19,7 @@
       'rxjs': 'npm:rxjs',
       // ilib
       'ilib': '../../core/dist',
-      'ilib-ng': '../dist'
+      'ilib-ng': '../code/dist'
     },
     packages: {
       app: {

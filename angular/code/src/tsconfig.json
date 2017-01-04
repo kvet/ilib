@@ -13,7 +13,7 @@
     "baseUrl": ".",
     "rootDir": ".",
     "paths": {
-      "ilib": ["../../core/dist"]
+      "ilib": ["../../../core/dist"]
     }
   },
   "angularCompilerOptions": {

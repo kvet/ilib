@@ -91,5 +91,5 @@ ${
 })
 export class Il${definition.name}Module {}
 `;
-    fs.writeFileSync(path.resolve(__dirname, `../../src/${definition.fileName}.ts`), content);
+    fs.writeFileSync(path.resolve(__dirname, `../../code/src/${definition.fileName}.ts`), content);
 }
