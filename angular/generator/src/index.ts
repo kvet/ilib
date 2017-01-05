@@ -49,7 +49,7 @@ import {
 import { ${definition.component} } from 'ilib';
 
 @Component({
-    selector: '${template.tag}[ilibng]',
+    selector: '${template.tag}[ilib-${definition.fileName}]',
     template: \`${template.content}\`,
     styles: [\`${styles}\`]
 })
@@ -58,7 +58,8 @@ export class Il${definition.name}Component {
 
 ${
     Object.keys(metadata.props).map((prop) => {
-        return `    @Input() ${prop} = ${metadata.props[prop]};`;
+        return `    @Input() ${prop} = ${metadata.props[prop]};` +
+               (metadata.bindableProps.indexOf(prop) > -1 ? `\n    @Output() ${prop}Change = new EventEmitter();` : '');
     }).join('\n')
 }
 ${
@@ -75,11 +76,11 @@ ${
 
     constructor() {
         this.component = new ${definition.component}({
-            emitEvent: (name, e) => {
-                this[name].emit(e);
-            },
-            getProp: (name) => {
-                return this[name];
+            emitEvent: (name, e) => this[name].emit(e),
+            getProp: (name) => this[name],
+            setProp: (name, value) => {
+                this[name] = value;
+                this[name + 'Change'].emit(value);
             }
         });
     }

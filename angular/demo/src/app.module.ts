@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
-import { IlButtonModule } from 'ilib-ng';
+import { IlButtonModule, IlToggleButtonModule } from 'ilib-ng';
 import { MyButtonModule } from './button.component';
 
 @NgModule({
@@ -11,6 +11,7 @@ import { MyButtonModule } from './button.component';
     BrowserModule,
     FormsModule,
     IlButtonModule,
+    IlToggleButtonModule,
     MyButtonModule
   ],
   bootstrap: [AppComponent],

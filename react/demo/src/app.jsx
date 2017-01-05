@@ -1,10 +1,18 @@
 import React from 'react';
 import { MyButton } from './button';
-import { Button } from 'ilib-react';
+import { Button, ToggleButton } from 'ilib-react';
 
 export default class App extends React.Component {
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            disabledButton: false
+        };
+    }
     render() {
         var clickHandler = () => alert(`clicked`)
+        var toggleHandler = () => this.setState({ disabledButton: !this.state.disabledButton })
 
         return (
             <div>
@@ -17,7 +25,12 @@ export default class App extends React.Component {
                 <Button onClick={clickHandler}>Hello world!</Button>
                 <br/>
                 <br/>
-                <Button disabled="true" onClick={clickHandler}>Hello world!</Button>
+                <Button disabled={this.state.disabledButton} onClick={clickHandler}>
+                    Hello world!
+                </Button>
+                <ToggleButton active={this.state.disabledButton} onClick={toggleHandler}>
+                    {'< ' + (this.state.disabledButton ? 'enable' : 'disable')}
+                </ToggleButton>
             </div>
         )
     }

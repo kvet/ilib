@@ -2,6 +2,7 @@ export interface Component {}
 
 export interface ComponentBridge {
     getProp(name: string): any;
+    setProp(name: string, value: any): void;
     emitEvent(name: string, data: any): void;
 }
 
@@ -28,4 +29,5 @@ export interface ComponentMetadata {
     
     events: string[];
     props: { [key: string]: any };
+    bindableProps: string[];
 }

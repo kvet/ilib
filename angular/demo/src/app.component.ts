@@ -19,14 +19,18 @@ import {
     <input type="checkbox" [(ngModel)]="myBtn.disabled"/>
     <br/>
     <br/>
-    <button ilibng class="green" (onClick)="clicked('g')"><b>Hello World Again!</b></button>
+    <button ilib-button class="green" (onClick)="clicked('g')"><b>Hello World Again!</b></button>
     <br/>
     <br/>
-    <button ilibng #btn [disabled]="false" (onClick)="clicked('g')">Hello World Again!</button>
-    <input type="checkbox" [(ngModel)]="btn.disabled"/>
+    <button ilib-button #btn [disabled]="false" (onClick)="clicked('g')">Hello World!</button>
+    <button ilib-toggle_button [(active)]="btn.disabled">
+        < {{btn.disabled ? 'enable' : 'disable'}}
+    </button>
 `
 })
 export class AppComponent {
+    buttonDisabled = false
+
     constructor() { }
 
     clicked(type) {
