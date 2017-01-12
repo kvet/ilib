@@ -19,7 +19,7 @@ export class ToggleButton extends Component {
         return  createElement(
             'button',
             {
-                'data-host-abc59': true,
+                'data-host-abc2': true,
                 className: (this.props.className || '') + ' ' + (this.component.disabled ? 'disabled ' : '') + (this.component.active ? 'active ' : ''),
             onClick:this.component.clickHandler.bind(this.component),
             },

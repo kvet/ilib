@@ -19,7 +19,7 @@ export class Button extends Component {
         return  createElement(
             'button',
             {
-                'data-host-abc187': true,
+                'data-host-abc1': true,
                 className: (this.props.className || '') + ' ' + (this.component.disabled ? 'disabled ' : ''),
             onClick:this.component.clickHandler.bind(this.component),
             },
