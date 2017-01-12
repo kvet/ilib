@@ -15,8 +15,10 @@ import {
     <h1>Hello world!</h1>
     <br/>
     <br/>
-    <my-button #myBtn [disabled]="false" (onClick)="clicked('my')" class="green">Opapa!</my-button>
-    <input type="checkbox" [(ngModel)]="myBtn.disabled"/>
+    <my-button-group>
+        <my-button [disabled]="true">Opapa</my-button>
+        <my-button>Ololo</my-button>
+    </my-button-group>
     <br/>
     <br/>
     <button ilib-button class="green" (onClick)="clicked('g')"><b>Hello World Again!</b></button>
