@@ -50,7 +50,7 @@
     "build:react:demo": "webpack --config react/demo/webpack.config.js",
     "build:react": "npm run build:react:code -s && npm run build:react:demo -s",
     "build": "npm run build:core -s && npm run build:ng -s && npm run build:react -s",
-    "serve": "static -p 3000 -H '{\"Cache-Control\": \"no-cache, must-revalidate\"}'"
+    "serve": "static -p 3000 -H \"{\\\"Cache-Control\\\": \\\"no-cache, must-revalidate\\\"}\""
   },
   "author": "",
   "license": "ISC"
