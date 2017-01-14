@@ -40,6 +40,9 @@ let stringifyStyles = {
     host: () => `[data-host-abc${componentId}]`
 };
 
+try {
+    fs.mkdirSync(path.resolve(__dirname, `../../code/src/generated`))
+} catch(e) {}
 for (let definition of ilib.definitions) {
     componentId++; // TODO
 
@@ -68,9 +71,16 @@ export class ${definition.name} extends Component {
         return ${template}
     }
 }`;
-    fs.writeFileSync(path.resolve(__dirname, `../../code/src/${definition.fileName}.js`), content);
+    fs.writeFileSync(path.resolve(__dirname, `../../code/src/generated/${definition.fileName}.js`), content);
     try {
         fs.mkdirSync(path.resolve(__dirname, `../../code/dist`))
     } catch(e) {}
-    fs.writeFileSync(path.resolve(__dirname, `../../code/dist/${definition.fileName}.css`), styles);
+    try {
+        fs.mkdirSync(path.resolve(__dirname, `../../code/dist/generated`))
+    } catch(e) {}
+    fs.writeFileSync(path.resolve(__dirname, `../../code/dist/generated/${definition.fileName}.css`), styles);
 }
+
+fs.writeFileSync(path.resolve(__dirname, `../../code/src/generated/index.js`), ilib.definitions.map((d) => {
+    return `export * from './${d.fileName}';`;
+}).join('\n'));

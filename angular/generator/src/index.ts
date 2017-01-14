@@ -31,6 +31,10 @@ let stringifyStyles = {
     host: () => ':host'
 };
 
+try {
+    fs.mkdirSync(path.resolve(__dirname, `../../code/src/generated`))
+} catch(e) {}
+
 for (let definition of ilib.definitions) {
     let metadata: ilib.ComponentMetadata = ilib[definition.metadata];
     let template = metadata.template(stringifyTemplate);
@@ -92,5 +96,9 @@ ${
 })
 export class Il${definition.name}Module {}
 `;
-    fs.writeFileSync(path.resolve(__dirname, `../../code/src/${definition.fileName}.ts`), content);
+    fs.writeFileSync(path.resolve(__dirname, `../../code/src/generated/${definition.fileName}.ts`), content);
 }
+
+fs.writeFileSync(path.resolve(__dirname, `../../code/src/generated/index.ts`), ilib.definitions.map((d) => {
+    return `export * from './${d.fileName}';`;
+}).join('\n'));
