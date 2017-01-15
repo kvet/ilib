@@ -17,7 +17,7 @@ export default class App extends React.Component {
 
         return (
             <div>
-                <h1>ilib angular demo</h1>
+                <h1>ilib react demo</h1>
 
                 <h2>Native component</h2>
                 <MyButton style={{ background: 'red' }}>Hello World!</MyButton>
