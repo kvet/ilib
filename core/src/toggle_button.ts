@@ -36,7 +36,8 @@ export let toggleButtonComponentMetadata: ComponentMetadata = {
 
     styles: (e) => {
         return `
-        ${e.host()} { 
+        ${e.host()} {
+            margin: 0;
             display: inline-block;
             border: 1px solid red;
             border-radius: 5px;

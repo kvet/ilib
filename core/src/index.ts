@@ -2,6 +2,7 @@ export * from './definitions'
 
 export * from './button';
 export * from './toggle_button';
+export * from './button_group';
 
 export let definitions = [
     {
@@ -15,5 +16,11 @@ export let definitions = [
         name: 'ToggleButton',
         component: 'ToggleButtonComponent',
         metadata: 'toggleButtonComponentMetadata'
+    },
+    {
+        fileName: 'button_group',
+        name: 'ButtonGroup',
+        component: 'ButtonGroupComponent',
+        metadata: 'buttonGroupComponentMetadata'
     }
 ]

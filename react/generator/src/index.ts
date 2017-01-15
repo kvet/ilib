@@ -12,6 +12,7 @@ let stringifyTemplate = {
         let classes = (attrs.classes || []).map((klass) => {
             return `(this.component.${klass.getter} ? '${klass.name} ' : '')`;
         }).join(' + ');
+        classes = classes ? ' + \' \' + ' + classes : '';
         let events = (attrs.events || []).map((event) => {
             return {
                 event: `on${cap(event.name)}`,
@@ -23,7 +24,7 @@ let stringifyTemplate = {
             '${tag}',
             {
                 'data-host-abc${componentId}': true,
-                className: (this.props.className || '') + ' ' + ${classes},
+                className: (this.props.className || '') ${classes},
 ${
             events.map((event) => {
                 return `            ${event.event}:${event.handler},`;
@@ -37,7 +38,8 @@ ${
 };
 
 let stringifyStyles = {
-    host: () => `[data-host-abc${componentId}]`
+    host: () => `[data-host-abc${componentId}]`,
+    slotted: (selector: string) => `[data-host-abc${componentId}] ${selector}`
 };
 
 try {

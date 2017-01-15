@@ -28,7 +28,8 @@ let stringifyTemplate = {
 };
 
 let stringifyStyles = {
-    host: () => ':host'
+    host: () => ':host',
+    slotted: (selector) => `:host >>> ${selector}` 
 };
 
 try {
