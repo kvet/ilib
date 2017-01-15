@@ -1,8 +1,8 @@
-export * from './definitions'
+export * from './definitions';
 
-export * from './button';
-export * from './toggle_button';
-export * from './button_group';
+export * from './components/button';
+export * from './components/toggle_button';
+export * from './components/button_group';
 
 export let definitions = [
     {

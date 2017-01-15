@@ -1,34 +1,26 @@
-import { Component, ComponentBridge, ComponentMetadata } from './definitions';
+import { Component, ComponentBridge, ComponentMetadata } from '../definitions';
 
-export class ToggleButtonComponent implements Component {
+export class ButtonComponent implements Component {
     constructor(private bridge: ComponentBridge) {}
 
     get disabled() {
         return this.bridge.getProp('disabled');
     }
 
-    get active() {
-        return this.bridge.getProp('active');
-    }
-
     clickHandler(e) {
         if(!this.disabled) {
-            this.bridge.setProp('active', !this.bridge.getProp('active'));
             this.bridge.emitEvent('onClick', e);
         }
     }
 };
 
-export let toggleButtonComponentMetadata: ComponentMetadata = {
+export let buttonComponentMetadata: ComponentMetadata = {
     template: (e) => { 
         return e.host(
             'button',
             e.contentPlaceholder(),
             { 
-                classes: [
-                    { name: 'disabled', getter: 'disabled' },
-                    { name: 'active', getter: 'active' }
-                ],
+                classes: [{ name: 'disabled', getter: 'disabled' }],
                 events: [{ name: 'click', handler: 'clickHandler' }]
             }
         );
@@ -47,9 +39,6 @@ export let toggleButtonComponentMetadata: ComponentMetadata = {
             background-color: #fff;
             border-color: #adadad;
         }
-        ${e.host()}.active {
-            background-color: #ddd;
-        }
         ${e.host()}.disabled {
             cursor: not-allowed;
             opacity: .65;
@@ -59,10 +48,7 @@ export let toggleButtonComponentMetadata: ComponentMetadata = {
         'onClick'
     ],
     props: {
-        active: false,
         disabled: false
     },
-    bindableProps: [
-        'active'
-    ]
+    bindableProps: []
 }

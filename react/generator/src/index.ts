@@ -2,55 +2,62 @@ import * as fs from 'fs';
 import * as path from'path';
 import * as ilib from '../../../core/dist';
 
+const HOST_TAG = "data-ilibhost";
+
 let cap = (string: string): string => {
     return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
-let componentId = 0;
-let stringifyTemplate = {
-    host: (tag, content, attrs) => {
-        let classes = (attrs.classes || []).map((klass) => {
-            return `(this.component.${klass.getter} ? '${klass.name} ' : '')`;
-        }).join(' + ');
-        classes = classes ? ' + \' \' + ' + classes : '';
-        let events = (attrs.events || []).map((event) => {
-            return {
-                event: `on${cap(event.name)}`,
-                handler: `this.component.${event.handler}.bind(this.component)`
-            };
-        });
+let componentIds: { [key: string]: string } = {};
+let stringifyTemplate = (componentName) => {
+    return {
+        host: (tag, content, attrs) => {
+            let classes = (attrs.classes || []).map((klass) => {
+                return `(this.component.${klass.getter} ? '${klass.name} ' : '')`;
+            }).join(' + ');
+            classes = classes ? ' + \' \' + ' + classes : '';
+            let events = (attrs.events || []).map((event) => {
+                return {
+                    event: `on${cap(event.name)}`,
+                    handler: `this.component.${event.handler}.bind(this.component)`
+                };
+            });
 
-        return ` createElement(
-            '${tag}',
-            {
-                'data-host-abc${componentId}': true,
-                className: (this.props.className || '') ${classes},
-${
-            events.map((event) => {
-                return `            ${event.event}:${event.handler},`;
-            }).join('\n')
-}
-            },
-            ${content}
-        )`;
-    },
-    contentPlaceholder: () => 'this.props.children'
+            return ` createElement(
+                '${tag}',
+                {
+                    '${HOST_TAG}${componentIds[componentName]}': true,
+                    className: (this.props.className || '') ${classes},
+    ${
+                events.map((event) => {
+                    return `            ${event.event}:${event.handler},`;
+                }).join('\n')
+    }
+                },
+                ${content}
+            )`;
+        },
+        contentPlaceholder: () => 'this.props.children'
+    };
 };
 
-let stringifyStyles = {
-    host: () => `[data-host-abc${componentId}]`,
-    slotted: (selector: string) => `[data-host-abc${componentId}] ${selector}`
+let stringifyStyles = (componentName) => {
+    return {
+        host: () => `[${HOST_TAG}${componentIds[componentName]}]`,
+        slotted: (selector) => `[${HOST_TAG}${componentIds[componentName]}] ${selector}`,
+        componentSelector: (name) => `[${HOST_TAG}${componentIds[name]}]`
+    };
 };
 
 try {
     fs.mkdirSync(path.resolve(__dirname, `../../code/src/generated`))
 } catch(e) {}
 for (let definition of ilib.definitions) {
-    componentId++; // TODO
+    componentIds[definition.name] = '' + Math.floor(Math.random() * 10000);
 
     let metadata: ilib.ComponentMetadata = ilib[definition.metadata];
-    let template = metadata.template(stringifyTemplate);
-    let styles = metadata.styles(stringifyStyles);
+    let template = metadata.template(stringifyTemplate(definition.name));
+    let styles = metadata.styles(stringifyStyles(definition.name));
 
     let content = `
 import { Component, createElement } from 'react';

@@ -11,8 +11,10 @@ export interface ComponentStyle {
 }
 
 export interface ComponentStyleBuilder {
-    host: () => string;
+    host: () => string; 
     slotted: (selector: string) => string;
+
+    componentSelector: (name: string) => string;
 }
 
 export interface ComponentTemplate {

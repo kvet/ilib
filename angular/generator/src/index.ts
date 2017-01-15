@@ -29,7 +29,8 @@ let stringifyTemplate = {
 
 let stringifyStyles = {
     host: () => ':host',
-    slotted: (selector) => `:host >>> ${selector}` 
+    slotted: (selector) => `:host >>> ${selector}`,
+    componentSelector: (name) => `[ilib-${ilib.definitions.filter((d) => d.name === name)[0].fileName}]`
 };
 
 try {
