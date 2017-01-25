@@ -10,6 +10,8 @@ let cap = (string: string): string => {
 
 let componentIds: { [key: string]: string } = {};
 let stringifyTemplate = (componentName) => {
+    let usedComponents = [];
+
     return {
         host: (tag, content, attrs) => {
             let classes = (attrs.classes || []).map((klass) => {
@@ -23,7 +25,8 @@ let stringifyTemplate = (componentName) => {
                 };
             });
 
-            return ` createElement(
+            return {
+                template: `createElement(
                 '${tag}',
                 {
                     '${HOST_TAG}${componentIds[componentName]}': true,
@@ -35,9 +38,32 @@ let stringifyTemplate = (componentName) => {
     }
                 },
                 ${content}
-            )`;
+            )`,
+                usedComponents
+            }
         },
-        contentPlaceholder: () => 'this.props.children'
+        contentPlaceholder: () => 'this.props.children',
+        component: (name: string, attrs, ...content) => {
+            if(usedComponents.indexOf(name) === -1)
+                usedComponents.push(name);
+            return `createElement(${name}, { ${
+                Object.keys(attrs).map(attr => {
+                    let attrData = attrs[attr];
+                    if ('getter' in attrData) {
+                        return `${attr}: this.component.${attrData.getter}(${attrData.params.join(', ')})`;
+                    }
+                    if ('action' in attrData) {
+                        return `${attr}: this.component.${attrData.action}.bind(${['this.component'].concat(attrData.params).join(', ')})`;
+                    }
+                }).join(', ')
+            } }, ${content.join(', ')})`;
+        },
+        text: (content) => `'${content}'`,
+        for: (of: { getter: string }, indexName: string, valueName: string, content: string) => {
+            return `...(this.component.${of.getter}.map((${valueName}, ${indexName}) => ${content}))`
+        },
+        forIndex: (indexName) => indexName,
+        forValue: (valueName) => valueName,
     };
 };
 
@@ -63,6 +89,12 @@ for (let definition of ilib.definitions) {
 import { Component, createElement } from 'react';
 import { ${definition.component} } from 'ilib';
 import './${definition.fileName}.css';
+${
+    template.usedComponents.map(name => {
+        let definition = ilib.definitions.filter(c => c.name == name)[0];
+        return `import { ${name} } from './${definition.fileName}';`;
+    }).join('\n')
+}
 
 export class ${definition.name} extends Component {
     constructor(props) {
@@ -77,7 +109,7 @@ export class ${definition.name} extends Component {
         });
     }
     render() {
-        return ${template}
+        return ${template.template}
     }
 }`;
     fs.writeFileSync(path.resolve(__dirname, `../../code/src/generated/${definition.fileName}.js`), content);

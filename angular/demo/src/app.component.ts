@@ -36,6 +36,10 @@ import {
             < {{btnInGroup.disabled ? 'enable' : 'disable'}}
         </button>
     </div>
+    
+    <h2>RadioGroup component</h2>
+    <div ilib-radio_group #rg [items]="[1, 2, 3]" [active]="1"></div>
+    <div ilib-radio_group [items]="[1, 2, 3, 4, 5]" [(active)]="rg.active"></div>
 `
 })
 export class AppComponent {

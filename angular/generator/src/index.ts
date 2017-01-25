@@ -2,29 +2,61 @@ import * as fs from 'fs';
 import * as path from'path';
 import * as ilib from '../../../core/dist';
 
-let stringifyTemplate = {
-    host: (tag, content, attrs) => {
-        let classes = (attrs.classes || []).map((klass) => {
-            return `
-            @HostBinding('class.${klass.name}') get _host_class_${klass.name}() {
-                return this.component.${klass.getter};
-            }`
-        }).join('\n');
-        let events = (attrs.events || []).map((event) => {
-            return `
-            @HostListener('${event.name}') _host_on_${event.name}(e) {
-                return this.component.${event.handler}(e);
-            }`
-        }).join('\n');
-        
-        return {
-            classes,
-            events,
-            tag,
-            content
-        }
-    },
-    contentPlaceholder: () => '<ng-content></ng-content>'
+let cmpsCache = {};
+
+let stringifyTemplate = () => {
+    let usedComponents = [];
+
+    return {
+        host: (tag, content, attrs) => {
+            let classes = (attrs.classes || []).map((klass) => {
+                return `
+                @HostBinding('class.${klass.name}') get _host_class_${klass.name}() {
+                    return this.component.${klass.getter};
+                }`
+            }).join('\n');
+            let events = (attrs.events || []).map((event) => {
+                return `
+                @HostListener('${event.name}') _host_on_${event.name}(e) {
+                    return this.component.${event.handler}(e);
+                }`
+            }).join('\n');
+            
+            return {
+                classes,
+                events,
+                tag,
+                content,
+                usedComponents
+            }
+        },
+        contentPlaceholder: () => '<ng-content></ng-content>',
+        component: (name: string, attrs: { [key: string]: any }, ...content: string[]) => {
+            if(usedComponents.indexOf(name) === -1)
+                usedComponents.push(name);
+
+            return `<${cmpsCache[name].tag} ${cmpsCache[name].attr} ${
+                Object.keys(attrs).map(attr => {
+                    let attrData = attrs[attr];
+                    if ('getter' in attrData) {
+                        return `[${attr}]="component.${attrData.getter}(${attrData.params.join(', ')})"`;
+                    }
+                    if ('action' in attrData) {
+                        return `(${attr})="component.${attrData.action}(${attrData.params.join(', ')})"`;
+                    }
+                }).join(' ')
+            }>${content.join(', ')}</${cmpsCache[name].tag}>`;
+        },
+        text: (content: string) => content,
+        for: (of: { getter: string }, indexName: string, valueName: string, content: string) => {
+            return content.replace(
+                '>',
+                ` *ngFor="let ${valueName} of component.${of.getter}; let ${indexName} = index">`
+            );
+        },
+        forIndex: (indexName: string) => indexName,
+        forValue: (valueName: string) => `{{${valueName}}}`
+    };
 };
 
 let stringifyStyles = {
@@ -39,8 +71,13 @@ try {
 
 for (let definition of ilib.definitions) {
     let metadata: ilib.ComponentMetadata = ilib[definition.metadata];
-    let template = metadata.template(stringifyTemplate);
+    let template = metadata.template(stringifyTemplate());
     let styles = metadata.styles(stringifyStyles);
+
+    cmpsCache[definition.name] = {
+        tag: template.tag,
+        attr: `ilib-${definition.fileName}`
+    };
 
     let content = `
 import {
@@ -52,7 +89,14 @@ import {
     HostListener,
     HostBinding
 } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
 import { ${definition.component} } from 'ilib';
+${
+    template.usedComponents.map(name => {
+        let definition = ilib.definitions.filter(c => c.name == name)[0];
+        return `import { Il${name}Module } from './${definition.fileName}';`;
+    }).join('\n')
+}
 
 @Component({
     selector: '${template.tag}[ilib-${definition.fileName}]',
@@ -64,7 +108,7 @@ export class Il${definition.name}Component {
 
 ${
     Object.keys(metadata.props).map((prop) => {
-        return `    @Input() ${prop} = ${metadata.props[prop]};` +
+        return `    @Input() ${prop} = ${JSON.stringify(metadata.props[prop])};` +
                (metadata.bindableProps.indexOf(prop) > -1 ? `\n    @Output() ${prop}Change = new EventEmitter();` : '');
     }).join('\n')
 }
@@ -93,6 +137,7 @@ ${
 }
 
 @NgModule({
+    imports: [BrowserModule, ${template.usedComponents.map(name => `Il${name}Module`).join(', ')}],
     declarations: [Il${definition.name}Component],
     exports: [Il${definition.name}Component]
 })

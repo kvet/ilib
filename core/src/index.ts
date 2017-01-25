@@ -3,6 +3,7 @@ export * from './definitions';
 export * from './components/button';
 export * from './components/toggle_button';
 export * from './components/button_group';
+export * from './components/radio_group';
 
 export let definitions = [
     {
@@ -22,5 +23,11 @@ export let definitions = [
         name: 'ButtonGroup',
         component: 'ButtonGroupComponent',
         metadata: 'buttonGroupComponentMetadata'
+    },
+    {
+        fileName: 'radio_group',
+        name: 'RadioGroup',
+        component: 'RadioGroupComponent',
+        metadata: 'radioGroupComponentMetadata'
     }
 ]

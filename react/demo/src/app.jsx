@@ -1,6 +1,6 @@
 import React from 'react';
 import { MyButton } from './button';
-import { Button, ToggleButton, ButtonGroup } from 'ilib-react';
+import { Button, ToggleButton, ButtonGroup, RadioGroup } from 'ilib-react';
 
 export default class App extends React.Component {
     constructor(props) {
@@ -8,12 +8,16 @@ export default class App extends React.Component {
 
         this.state = {
             disabledButton: false,
-            disabledButtonInGroup: false
+            disabledButtonInGroup: false,
+
+            activeItem: 1
         };
     }
     render() {
         var toggleHandler = () => this.setState({ disabledButton: !this.state.disabledButton })
         var toggleInGroupHandler = () => this.setState({ disabledButtonInGroup: !this.state.disabledButtonInGroup })
+
+        var activateHandler = (e) => this.setState({ activeItem: e.index })
 
         return (
             <div>
@@ -43,6 +47,10 @@ export default class App extends React.Component {
                         {'< ' + (this.state.disabledButtonInGroup ? 'enable' : 'disable')}
                     </ToggleButton>
                 </ButtonGroup>
+
+                <h2>RadioGroup component</h2>
+                <RadioGroup items={[1, 2, 3]} active={this.state.activeItem} onActivate={activateHandler}></RadioGroup>
+                <RadioGroup items={[1, 2, 3, 4, 5]} active={this.state.activeItem} onActivate={activateHandler}></RadioGroup>
             </div>
         )
     }
