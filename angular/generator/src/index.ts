@@ -1,63 +1,9 @@
 import * as fs from 'fs';
 import * as path from'path';
 import * as ilib from '../../../core/dist';
+import { template as buildTemplate } from './template';
 
 let cmpsCache = {};
-
-let stringifyTemplate = () => {
-    let usedComponents = [];
-
-    return {
-        host: (tag, content, attrs) => {
-            let classes = (attrs.classes || []).map((klass) => {
-                return `
-                @HostBinding('class.${klass.name}') get _host_class_${klass.name}() {
-                    return this.component.${klass.getter};
-                }`
-            }).join('\n');
-            let events = (attrs.events || []).map((event) => {
-                return `
-                @HostListener('${event.name}') _host_on_${event.name}(e) {
-                    return this.component.${event.handler}(e);
-                }`
-            }).join('\n');
-            
-            return {
-                classes,
-                events,
-                tag,
-                content,
-                usedComponents
-            }
-        },
-        contentPlaceholder: () => '<ng-content></ng-content>',
-        component: (name: string, attrs: { [key: string]: any }, ...content: string[]) => {
-            if(usedComponents.indexOf(name) === -1)
-                usedComponents.push(name);
-
-            return `<${cmpsCache[name].tag} ${cmpsCache[name].attr} ${
-                Object.keys(attrs).map(attr => {
-                    let attrData = attrs[attr];
-                    if ('getter' in attrData) {
-                        return `[${attr}]="component.${attrData.getter}(${attrData.params.join(', ')})"`;
-                    }
-                    if ('action' in attrData) {
-                        return `(${attr})="component.${attrData.action}(${attrData.params.join(', ')})"`;
-                    }
-                }).join(' ')
-            }>${content.join(', ')}</${cmpsCache[name].tag}>`;
-        },
-        text: (content: string) => content,
-        for: (of: { getter: string }, indexName: string, valueName: string, content: string) => {
-            return content.replace(
-                '>',
-                ` *ngFor="let ${valueName} of component.${of.getter}; let ${indexName} = index">`
-            );
-        },
-        forIndex: (indexName: string) => indexName,
-        forValue: (valueName: string) => `{{${valueName}}}`
-    };
-};
 
 let stringifyStyles = {
     host: () => ':host',
@@ -71,7 +17,7 @@ try {
 
 for (let definition of ilib.definitions) {
     let metadata: ilib.ComponentMetadata = ilib[definition.metadata];
-    let template = metadata.template(stringifyTemplate());
+    let template = buildTemplate(ilib[definition.template], cmpsCache);
     let styles = metadata.styles(stringifyStyles);
 
     cmpsCache[definition.name] = {
@@ -92,10 +38,10 @@ import {
 import { BrowserModule } from '@angular/platform-browser';
 import { ${definition.component} } from 'ilib';
 ${
-    template.usedComponents.map(name => {
+    'usedComponents' in template ? template['usedComponents'].map(name => {
         let definition = ilib.definitions.filter(c => c.name == name)[0];
         return `import { Il${name}Module } from './${definition.fileName}';`;
-    }).join('\n')
+    }).join('\n') : ''
 }
 
 @Component({
@@ -104,7 +50,7 @@ ${
     styles: [\`${styles}\`]
 })
 export class Il${definition.name}Component {
-    component: ${definition.component};
+    private component: ${definition.component};
 
 ${
     Object.keys(metadata.props).map((prop) => {
@@ -118,10 +64,13 @@ ${
     }).join('\n')
 }
 ${
-    template.classes
+    'classes' in template ? template['classes'] : ''
 }
 ${
-    template.events
+    'events' in template ? template['events'] : ''
+}
+${
+    'rootAttrs' in template ? template['rootAttrs'] : ''
 }
 
     constructor() {
@@ -137,7 +86,7 @@ ${
 }
 
 @NgModule({
-    imports: [BrowserModule, ${template.usedComponents.map(name => `Il${name}Module`).join(', ')}],
+    imports: [BrowserModule, ${'usedComponents' in template ? template['usedComponents'].map(name => `Il${name}Module`).join(', ') : ''}],
     declarations: [Il${definition.name}Component],
     exports: [Il${definition.name}Component]
 })

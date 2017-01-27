@@ -18,33 +18,6 @@ export class RadioGroupComponent implements Component {
 };
 
 export let radioGroupComponentMetadata: ComponentMetadata = {
-    template: (e) => { 
-        return e.host(
-            'div',
-            e.component(
-                'ButtonGroup',
-                {},
-                e.for(
-                    { getter: 'items' },
-                    'index',
-                    'item',
-                    e.component(
-                        'ToggleButton',
-                        { 
-                            active: { getter: 'isActive', params: [e.forIndex('index')] },
-                            onClick: { action: 'activate', params: [e.forIndex('index')] }
-                        },
-                        e.forValue('item')
-                    )
-                )
-            ),
-            { 
-                classes: [],
-                events: []
-            }
-        );
-    },
-
     styles: (e) => {
         return ``;
     },

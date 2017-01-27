@@ -20,20 +20,6 @@ export class ToggleButtonComponent implements Component {
 };
 
 export let toggleButtonComponentMetadata: ComponentMetadata = {
-    template: (e) => { 
-        return e.host(
-            'button',
-            e.contentPlaceholder(),
-            { 
-                classes: [
-                    { name: 'disabled', getter: 'disabled' },
-                    { name: 'active', getter: 'active' }
-                ],
-                events: [{ name: 'click', handler: 'clickHandler' }]
-            }
-        );
-    },
-
     styles: (e) => {
         return `
         ${e.host()} {

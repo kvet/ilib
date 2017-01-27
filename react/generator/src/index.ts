@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from'path';
 import * as ilib from '../../../core/dist';
+import { template as buildTemplate } from './template';
 
 const HOST_TAG = "data-ilibhost";
 
@@ -8,7 +9,7 @@ let cap = (string: string): string => {
     return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
-let componentIds: { [key: string]: string } = {};
+let componentIds: { [key: string]: { shadowId: string } } = {};
 let stringifyTemplate = (componentName) => {
     let usedComponents = [];
 
@@ -69,9 +70,9 @@ let stringifyTemplate = (componentName) => {
 
 let stringifyStyles = (componentName) => {
     return {
-        host: () => `[${HOST_TAG}${componentIds[componentName]}]`,
-        slotted: (selector) => `[${HOST_TAG}${componentIds[componentName]}] ${selector}`,
-        componentSelector: (name) => `[${HOST_TAG}${componentIds[name]}]`
+        host: () => `[${HOST_TAG}${<string>componentIds[componentName].shadowId}]`,
+        slotted: (selector) => `[${HOST_TAG}${<string>componentIds[componentName].shadowId}] ${selector}`,
+        componentSelector: (name) => `[${HOST_TAG}${<string>componentIds[name].shadowId}]`
     };
 };
 
@@ -79,10 +80,10 @@ try {
     fs.mkdirSync(path.resolve(__dirname, `../../code/src/generated`))
 } catch(e) {}
 for (let definition of ilib.definitions) {
-    componentIds[definition.name] = '' + Math.floor(Math.random() * 10000);
+    componentIds[definition.name] = { shadowId: '' + Math.floor(Math.random() * 10000) };
 
     let metadata: ilib.ComponentMetadata = ilib[definition.metadata];
-    let template = metadata.template(stringifyTemplate(definition.name));
+    let template = buildTemplate(ilib[definition.template], definition.name, componentIds);
     let styles = metadata.styles(stringifyStyles(definition.name));
 
     let content = `
@@ -109,7 +110,9 @@ export class ${definition.name} extends Component {
         });
     }
     render() {
-        return ${template.template}
+        return (
+${template.content}
+        );
     }
 }`;
     fs.writeFileSync(path.resolve(__dirname, `../../code/src/generated/${definition.fileName}.js`), content);

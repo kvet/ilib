@@ -5,17 +5,6 @@ export class ButtonGroupComponent implements Component {
 };
 
 export let buttonGroupComponentMetadata: ComponentMetadata = {
-    template: (e) => { 
-        return e.host(
-            'div',
-            e.contentPlaceholder(),
-            { 
-                classes: [],
-                events: []
-            }
-        );
-    },
-
     styles: (e) => {
         return `
         ${e.host()} {

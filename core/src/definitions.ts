@@ -17,22 +17,7 @@ export interface ComponentStyleBuilder {
     componentSelector: (name: string) => string;
 }
 
-export interface ComponentTemplate {
-    <T>(builder: ComponentTemplateBuilder<T>): T;
-}
-
-export interface ComponentTemplateBuilder<T> {
-    host: (tag: string, content: string, attrs: { [key: string]: any }) => T;
-    contentPlaceholder: () => string;
-    component: (name: string, attrs: { [key: string]: any }, ...content: string[]) => string;
-    text: (content: string) => string;
-    for: (of: { getter: string }, indexName: string, valueName: string, content: string) => string;
-    forIndex: (indexName: string) => string;
-    forValue: (valueName: string) => string;
-}
-
 export interface ComponentMetadata {
-    template: ComponentTemplate;
     styles: ComponentStyle;
     
     events: string[];
