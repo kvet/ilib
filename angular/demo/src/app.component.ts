@@ -8,8 +8,8 @@ import {
     selector: 'my-app',
     styles: [`
     b { color: brown; }
-    il-button.green, my-button.green { border: 1px solid green; padding: 20px; }
-    il-button.green.disabled, my-button.green.disabled { border: 1px solid gray; }
+    .green[ilib-button] { border: 1px solid green; padding: 4px; }
+    .green[ilib-radio_group] { border: 1px solid green; }
 `],
     template: `
     <h1>ilib angular demo</h1>
@@ -21,7 +21,8 @@ import {
     </my-button-group>
 
     <h2>Button component</h2>
-    <button ilib-button class="green" (onClick)="clicked('g')"><b>Hello World Again!</b></button>
+    <button ilib-button (onClick)="clicked('g')"><b>Hello World Again!</b></button>
+    <button ilib-button class="green" (onClick)="clicked('g1')"><b>Hello Green World!</b></button>
 
     <h2>ToggleButton component</h2>
     <button ilib-button #btn [disabled]="false" (onClick)="clicked('btn')">Hello World!</button>
@@ -39,7 +40,7 @@ import {
     
     <h2>RadioGroup component</h2>
     <div ilib-radio_group #rg [items]="[1, 2, 3]" [active]="1"></div>
-    <div ilib-radio_group [items]="[1, 2, 3, 4, 5]" [(active)]="rg.active"></div>
+    <div ilib-radio_group class="green" [items]="[1, 2, 3, 4, 5]" [(active)]="rg.active"></div>
 `
 })
 export class AppComponent {

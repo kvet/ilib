@@ -1,6 +1,7 @@
 import React from 'react';
 import { MyButton } from './button';
 import { Button, ToggleButton, ButtonGroup, RadioGroup } from 'ilib-react';
+import './app.css'
 
 export default class App extends React.Component {
     constructor(props) {
@@ -27,7 +28,9 @@ export default class App extends React.Component {
                 <MyButton style={{ background: 'red' }}>Hello World!</MyButton>
 
                 <h2>Button component</h2>
-                <Button onClick={alert.bind(null, 'clicked')}>Hello world!</Button>
+                <Button onClick={alert.bind(null, 'green clicked')}>Hello world!</Button>
+                &nbsp;
+                <Button className={"greenButton"} onClick={alert.bind(null, 'clicked')}>Hello green world!</Button>
 
                 <h2>ToggleButton component</h2>
                 <Button disabled={this.state.disabledButton} onClick={alert.bind(null, 'clicked')}>
