@@ -33,7 +33,8 @@ import {
     Output,
     EventEmitter,
     HostListener,
-    HostBinding
+    HostBinding,
+    OnInit
 } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { ${definition.component} } from 'ilib';
@@ -49,9 +50,10 @@ ${
     template: \`${template.content}\`,
     styles: [\`${styles}\`]
 })
-export class Il${definition.name}Component {
+export class Il${definition.name}Component implements OnInit {
     private component: ${definition.component};
 
+    @Input() _reactiveMode = false;
 ${
     Object.keys(metadata.props).map((prop) => {
         return `    @Input() ${prop} = ${JSON.stringify(metadata.props[prop])};` +
@@ -73,11 +75,11 @@ ${
     'rootAttrs' in template ? template['rootAttrs'] : ''
 }
 
-    constructor() {
+    ngOnInit() {
         this.component = new ${definition.component}({
             emitEvent: (name, e) => this[name].emit(e),
             getProp: (name) => this[name],
-            setProp: (name, value) => {
+            setProp: this._reactiveMode ? () => {} : (name, value) => {
                 this[name] = value;
                 this[name + 'Change'].emit(value);
             }

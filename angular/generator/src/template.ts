@@ -28,6 +28,7 @@ export function template(node: Node, components: { [key: string]: { tag: string,
                 return { tag };
             } else if (tag.type === 'componentTag') {
                 usedComponents.push(tag.name);
+                additionalAttrs.push('[_reactiveMode]="true"')
                 return {
                     tag: components[tag.name].tag,
                     attr: components[tag.name].attr
