@@ -1,20 +1,20 @@
 import { Node, templateBuilder as tb } from '../template_definitions';
 
-export let template = 
-    tb.node(
+export let template: Node =
+    tb.domNode(
         'div',
         [],
-        tb.node(
+        tb.domNode(
             tb.componentTag('ButtonGroup'),
             [],
-            tb.forLoop(tb.propGetter('items'), (value, index) => 
-                tb.node(
+            tb.forTemplate(tb.propGetter('items'), (value, index) => 
+                tb.domNode(
                     tb.componentTag('ToggleButton'),
                     [
                         tb.attr('active', tb.componentCall('isActive', index())),
                         tb.eventListener('onClick', tb.componentHandler('activate', index()))
                     ],
-                    tb.text(value())
+                    tb.textNode(value())
                 )
             )
         )

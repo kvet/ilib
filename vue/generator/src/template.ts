@@ -1,14 +1,15 @@
 import {
     Node,
+    DomNode,
     ClassToggle,
     EventListener,
     PropGetter,
-    ContentPlaceholder,
+    Slot,
     ComponentHandler,
     LocalGetter,
     TextNode,
     ComponentTag,
-    ForLoop,
+    ForTemplate,
     Attr,
     ComponentCall,
     DomEvent,
@@ -29,8 +30,8 @@ let unsupported = (name: string, data: any) =>
 export function template(node: Node, componentName: string, components: { [key: string]: { shadowId: string } }): { content: string, usedComponents: string[] } {
     let usedComponents = [];
 
-    let processNode = (node: Node) => {
-        let processNodeTag = (tag: Node['tag']): string => {
+    let processDomNode = (node: DomNode) => {
+        let processNodeTag = (tag: DomNode['tag']): string => {
             if (typeof tag === "string") {
                 return tag;
             } else if (tag.type === 'componentTag') {
@@ -40,7 +41,7 @@ export function template(node: Node, componentName: string, components: { [key: 
                 throw unsupported('tag', tag)
             }
         };
-        let processNodeAttrs = (attrs: Node['attrs']): string => {
+        let processNodeAttrs = (attrs: DomNode['attrs']): string => {
             let shadowId = `${HOST_TAG}${<string>components[componentName].shadowId}`
             let classNames = node.attrs
                 .filter(attr => attr.type === 'classToggle')
@@ -95,29 +96,29 @@ export function template(node: Node, componentName: string, components: { [key: 
         }
     };
 
-    let processContentPlaceholder = (contentPlaceholder: ContentPlaceholder) => '<slot></slot>';
+    let processSlot = (slot: Slot) => '<slot></slot>';
 
-    let processForLoop = (forLoop: ForLoop) => {
-        let of = processGetter(forLoop.of);
-        let value = processGetter(forLoop.value);
-        let index = forLoop.index ? `, ${processGetter(forLoop.index)}` : ''
+    let processForTemplate = (forTemplate: ForTemplate) => {
+        let of = processGetter(forTemplate.of);
+        let value = processGetter(forTemplate.value);
+        let index = forTemplate.index ? `, ${processGetter(forTemplate.index)}` : ''
         
         return `<template v-for="(${value}${index}) in ${of}">\n` +
-               indent(processNode(forLoop.children)) + '\n' + 
+               indent(processNodeChildrens(forTemplate.childrens)) + '\n' + 
                '</template>';
     };
 
-    let processNodeChildrens = (childrens: Node['childrens']): string => {
-        return childrens.map((children): string => {
-            switch (children.type) {
-                case 'node':
-                    return processNode(children);
-                case 'contentPlaceholder':
-                    return processContentPlaceholder(children);
+    let processNodeChildrens = (childrens: Node[]): string => {
+        return childrens.map((children: DomNode|TextNode|Slot|ForTemplate): string => {
+            switch (children.subtype) {
+                case 'domNode':
+                    return processDomNode(children);
+                case 'slot':
+                    return processSlot(children);
                 case 'textNode':
                     return processTextNode(children);
-                case 'forLoop':
-                    return processForLoop(children);
+                case 'forTemplate':
+                    return processForTemplate(children);
                 default:
                     throw unsupported('node type', children)
             }
@@ -154,7 +155,7 @@ export function template(node: Node, componentName: string, components: { [key: 
     };
 
     return {
-        content: processNode(node),
+        content: processDomNode(node as DomNode),
         usedComponents
     }
 }

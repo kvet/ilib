@@ -3,25 +3,30 @@ export interface Element {
 }
 
 
-export interface Node extends Element {
+export interface Node {
     readonly type: 'node'
-    readonly tag: string|ComponentTag
-    readonly attrs: (ClassToggle|Attr|EventListener)[]
-    readonly childrens: (Node|TextNode|ContentPlaceholder|ForLoop)[]
+    readonly subtype: string
 }
 
-export interface TextNode extends Element {
-    readonly type: 'textNode'
+export interface DomNode extends Node {
+    readonly subtype: 'domNode'
+    readonly tag: string|ComponentTag
+    readonly attrs: (ClassToggle|Attr|EventListener)[]
+    readonly childrens: Node[]
+}
+
+export interface TextNode extends Node {
+    readonly subtype: 'textNode'
     readonly content: StaticValue|LocalGetter
 }
 
-export interface ContentPlaceholder extends Element {
-    readonly type: 'contentPlaceholder'
+export interface Slot extends Node {
+    readonly subtype: 'slot'
 }
 
-export interface ForLoop extends Element {
-    readonly type: 'forLoop'
-    readonly children: Node
+export interface ForTemplate extends Node {
+    readonly subtype: 'forTemplate'
+    readonly childrens: Node[]
     readonly of: PropGetter
     readonly value: LocalGetter
     readonly index?: LocalGetter
@@ -91,13 +96,29 @@ export interface ComponentTag extends Element {
 
 
 export let templateBuilder = {
-    // Basic
-    node: (tag: Node['tag'], attrs: Node['attrs'], ...childrens: Node['childrens']): Node =>
-        { return { type: 'node', tag, attrs, childrens }; },
-    text: (content: TextNode['content']|string): TextNode => {
+    // Nodes
+    domNode: (tag: DomNode['tag'], attrs: DomNode['attrs'], ...childrens: DomNode['childrens']): DomNode =>
+        { return { type: 'node', subtype: 'domNode', tag, attrs, childrens }; },
+    textNode: (content: TextNode['content']|string): TextNode => {
         content = typeof content === 'string' ? { type: 'staticValue', value: content } : content;
-        return { type: 'textNode', content };
+        return { type: 'node', subtype: 'textNode', content };
     },
+
+    // Built-in templates
+    forTemplate: (of: ForTemplate['of'], on: (value: () => LocalGetter, index: () => LocalGetter) => Node|Node[]): ForTemplate => {
+        let value: LocalGetter;
+        let index: LocalGetter;
+        let childrens = on(
+            (): LocalGetter => value ? value : (value = { type: 'localGetter', name: 'value' }),
+            (): LocalGetter => index ? index : (index = { type: 'localGetter', name: 'index' }),
+        );
+        childrens = Array.isArray(childrens) ? childrens : [childrens]; 
+        return { type: 'node', subtype: 'forTemplate', of, value, index, childrens };
+    },
+
+    // Slots
+    slot: (): Slot =>
+        { return { type: 'node', subtype: 'slot' }; },
 
     // Attrs
     classToggle: (name: ClassToggle['name'], state: ClassToggle['state']): ClassToggle =>
@@ -119,22 +140,7 @@ export let templateBuilder = {
     componentHandler: (name: ComponentHandler['name'], ...params: ComponentHandler['params']): ComponentHandler =>
         { return { type: 'componentHandler', name, params }; },
 
-    // Logic
-    forLoop: (of: ForLoop['of'], on: (value: () => LocalGetter, index: () => LocalGetter) => Node): ForLoop => {
-        let value: LocalGetter;
-        let index: LocalGetter;
-        let children = on(
-            (): LocalGetter => value ? value : (value = { type: 'localGetter', name: 'value' }),
-            (): LocalGetter => index ? index : (index = { type: 'localGetter', name: 'index' }),
-        )
-        return { type: 'forLoop', of, value, index, children };
-    },
-
     // Composition
     componentTag: (name: ComponentTag['name']): ComponentTag =>
         { return { type: 'componentTag', name }; },
-
-    // Templates
-    contentPlaceholder: (): ContentPlaceholder =>
-        { return { type: 'contentPlaceholder' }; },
 }

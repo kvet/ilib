@@ -1,14 +1,15 @@
 import {
     Node,
+    DomNode,
     ClassToggle,
     EventListener,
     PropGetter,
-    ContentPlaceholder,
+    Slot,
     ComponentHandler,
     LocalGetter,
     TextNode,
     ComponentTag,
-    ForLoop,
+    ForTemplate,
     Attr,
     ComponentCall
 } from '../../../core/dist/template_definitions'
@@ -19,11 +20,11 @@ let indent = (str: string): string =>
 let unsupported = (name: string, data: any) =>
     `Unsupported ${name}: ${JSON.stringify(data)}`;
 
-export function template(node: Node, components: { [key: string]: { tag: string, attr?: string } }): { tag: string, rootAttrs: string, content: string, usedComponents: string[] } {
+export function template(node: DomNode, components: { [key: string]: { tag: string, attr?: string } }): { tag: string, rootAttrs: string, content: string, usedComponents: string[] } {
     let usedComponents = [];
 
-    let processNode = (node: Node) => {
-        let processNodeTag = (tag: Node['tag']): { tag: string, attr?: string } => {
+    let processDomNode = (node: DomNode) => {
+        let processNodeTag = (tag: DomNode['tag']): { tag: string, attr?: string } => {
             if (typeof tag === "string") {
                 return { tag };
             } else if (tag.type === 'componentTag') {
@@ -36,7 +37,7 @@ export function template(node: Node, components: { [key: string]: { tag: string,
                 throw unsupported('tag', tag)
             }
         };
-        let processNodeAttrs = (attrs: Node['attrs']): string => {
+        let processNodeAttrs = (attrs: DomNode['attrs']): string => {
             return node.attrs.map(attr => {
                 switch (attr.type) {
                     case 'attr':
@@ -72,28 +73,28 @@ export function template(node: Node, components: { [key: string]: { tag: string,
         }
     };
 
-    let processContentPlaceholder = (contentPlaceholder: ContentPlaceholder) => '<ng-content></ng-content>';
+    let processSlot = (slot: Slot) => '<ng-content></ng-content>';
 
-    let processForLoop = (forLoop: ForLoop) => {
-        let of = processGetter(forLoop.of);
-        let value = processGetter(forLoop.value);
-        let index = forLoop.index ? ` let-i="${processGetter(forLoop.index)}"` : '';
+    let processForLoop = (forTemplate: ForTemplate) => {
+        let of = processGetter(forTemplate.of);
+        let value = processGetter(forTemplate.value);
+        let index = forTemplate.index ? ` let-i="${processGetter(forTemplate.index)}"` : '';
 
         return `<template ngFor let-${value} [ngForOf]="${of}"${index}>\n` +
-               indent(processNode(forLoop.children)) + '\n' + 
+               indent(processNodeChildrens(forTemplate.childrens)) + '\n' + 
                '</template>';
     };
 
-    let processNodeChildrens = (childrens: Node['childrens']): string => {
-        return childrens.map((children): string => {
-            switch (children.type) {
-                case 'node':
-                    return processNode(children);
-                case 'contentPlaceholder':
-                    return processContentPlaceholder(children);
+    let processNodeChildrens = (childrens: Node[]): string => {
+        return childrens.map((children: DomNode|TextNode|ForTemplate|Slot): string => {
+            switch (children.subtype) {
+                case 'domNode':
+                    return processDomNode(children);
+                case 'slot':
+                    return processSlot(children);
                 case 'textNode':
                     return processTextNode(children);
-                case 'forLoop':
+                case 'forTemplate':
                     return processForLoop(children);
                 default:
                     throw unsupported('node type', children)
@@ -130,7 +131,7 @@ export function template(node: Node, components: { [key: string]: { tag: string,
         }
     };
 
-    let processRootAttrs = (attrs: Node['attrs']): string => {
+    let processRootAttrs = (attrs: DomNode['attrs']): string => {
         return node.attrs.map(attr => {
             switch (attr.type) {
                 case 'classToggle':
