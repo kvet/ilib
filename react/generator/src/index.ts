@@ -5,68 +5,7 @@ import { template as buildTemplate } from './template';
 
 const HOST_TAG = "data-ilibhost";
 
-let cap = (string: string): string => {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-};
-
 let componentIds: { [key: string]: { shadowId: string } } = {};
-let stringifyTemplate = (componentName) => {
-    let usedComponents = [];
-
-    return {
-        host: (tag, content, attrs) => {
-            let classes = (attrs.classes || []).map((klass) => {
-                return `(this.component.${klass.getter} ? '${klass.name} ' : '')`;
-            }).join(' + ');
-            classes = classes ? ' + \' \' + ' + classes : '';
-            let events = (attrs.events || []).map((event) => {
-                return {
-                    event: `on${cap(event.name)}`,
-                    handler: `this.component.${event.handler}.bind(this.component)`
-                };
-            });
-
-            return {
-                template: `createElement(
-                '${tag}',
-                {
-                    '${HOST_TAG}${componentIds[componentName]}': true,
-                    className: (this.props.className || '') ${classes},
-    ${
-                events.map((event) => {
-                    return `            ${event.event}:${event.handler},`;
-                }).join('\n')
-    }
-                },
-                ${content}
-            )`,
-                usedComponents
-            }
-        },
-        contentPlaceholder: () => 'this.props.children',
-        component: (name: string, attrs, ...content) => {
-            if(usedComponents.indexOf(name) === -1)
-                usedComponents.push(name);
-            return `createElement(${name}, { ${
-                Object.keys(attrs).map(attr => {
-                    let attrData = attrs[attr];
-                    if ('getter' in attrData) {
-                        return `${attr}: this.component.${attrData.getter}(${attrData.params.join(', ')})`;
-                    }
-                    if ('action' in attrData) {
-                        return `${attr}: this.component.${attrData.action}.bind(${['this.component'].concat(attrData.params).join(', ')})`;
-                    }
-                }).join(', ')
-            } }, ${content.join(', ')})`;
-        },
-        text: (content) => `'${content}'`,
-        for: (of: { getter: string }, indexName: string, valueName: string, content: string) => {
-            return `...(this.component.${of.getter}.map((${valueName}, ${indexName}) => ${content}))`
-        },
-        forIndex: (indexName) => indexName,
-        forValue: (valueName) => valueName,
-    };
-};
 
 let stringifyStyles = (componentName) => {
     return {
