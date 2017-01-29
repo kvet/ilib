@@ -22,23 +22,22 @@ let unsupported = (name: string, data: any) =>
 export function template(node: Node, components: { [key: string]: { tag: string, attr?: string } }): { tag: string, rootAttrs: string, content: string, usedComponents: string[] } {
     let usedComponents = [];
 
-    let processNode = (node: Node, additionalAttrs: string[] = []) => {
+    let processNode = (node: Node) => {
         let processNodeTag = (tag: Node['tag']): { tag: string, attr?: string } => {
             if (typeof tag === "string") {
                 return { tag };
             } else if (tag.type === 'componentTag') {
                 usedComponents.push(tag.name);
-                additionalAttrs.push('[_reactiveMode]="true"')
                 return {
                     tag: components[tag.name].tag,
-                    attr: components[tag.name].attr
+                    attr: `${components[tag.name].attr} [_reactiveMode]="true"`
                 }
             } else {
                 throw unsupported('tag', tag)
             }
         };
         let processNodeAttrs = (attrs: Node['attrs']): string => {
-            return additionalAttrs.concat(node.attrs.map(attr => {
+            return node.attrs.map(attr => {
                 switch (attr.type) {
                     case 'attr':
                         let state = processGetter(attr.state);
@@ -51,7 +50,7 @@ export function template(node: Node, components: { [key: string]: { tag: string,
                     default:
                         throw unsupported('root attribute', attr)
                 }
-            })).join('\n');
+            }).join('\n');
         };
         let tag = processNodeTag(node.tag);
         let attrs = processNodeAttrs(node.attrs);
@@ -78,10 +77,11 @@ export function template(node: Node, components: { [key: string]: { tag: string,
     let processForLoop = (forLoop: ForLoop) => {
         let of = processGetter(forLoop.of);
         let value = processGetter(forLoop.value);
-        let index = forLoop.index ? `; let ${processGetter(forLoop.index)} = index` : ''
-        let ngFor = `*ngFor="let ${value} of component.${of}${index}"`;
+        let index = forLoop.index ? ` let-i="${processGetter(forLoop.index)}"` : '';
 
-        return processNode(forLoop.children, [ngFor]);
+        return `<template ngFor let-${value} [ngForOf]="${of}"${index}>\n` +
+               indent(processNode(forLoop.children)) + '\n' + 
+               '</template>';
     };
 
     let processNodeChildrens = (childrens: Node['childrens']): string => {
