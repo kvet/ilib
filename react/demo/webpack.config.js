@@ -27,5 +27,6 @@ module.exports = {
             'ilib-react': path.join(__dirname, '../code/dist')
         },
         extensions: ["", ".webpack.js", ".web.js", ".js", ".jsx"]
-    }
+    },
+    devtool: 'eval'
 }
