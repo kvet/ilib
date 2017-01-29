@@ -3,12 +3,12 @@ export * from './definitions';
 export * from './components/button';
 export * from './components/toggle_button';
 export * from './components/button_group';
-export * from './components/radio_group';
+export * from './components/toggle_button_group';
 
 export { template as buttonComponentTemplate } from './components/button.template'
 export { template as buttonGroupComponentTemplate } from './components/button_group.template'
 export { template as toggleButtonComponentTemplate } from './components/toggle_button.template'
-export { template as radioGroupComponentTemplate } from './components/radio_group.template'
+export { template as toggleButtonGroupComponentTemplate } from './components/toggle_button_group.template'
 
 export let definitions: {
     fileName: string;
@@ -39,10 +39,10 @@ export let definitions: {
         template: 'buttonGroupComponentTemplate'
     },
     {
-        fileName: 'radio_group',
-        name: 'RadioGroup',
-        component: 'RadioGroupComponent',
-        metadata: 'radioGroupComponentMetadata',
-        template: 'radioGroupComponentTemplate'
+        fileName: 'toggle_button_group',
+        name: 'ToggleButtonGroup',
+        component: 'ToggleButtonGroupComponent',
+        metadata: 'toggleButtonGroupComponentMetadata',
+        template: 'toggleButtonGroupComponentTemplate'
     }
 ]

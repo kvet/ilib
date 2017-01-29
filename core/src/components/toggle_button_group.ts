@@ -1,6 +1,6 @@
 import { Component, ComponentBridge, ComponentMetadata } from '../definitions';
 
-export class RadioGroupComponent implements Component {
+export class ToggleButtonGroupComponent implements Component {
     constructor(private bridge: ComponentBridge) {}
 
     get items() {
@@ -17,7 +17,7 @@ export class RadioGroupComponent implements Component {
     }
 };
 
-export let radioGroupComponentMetadata: ComponentMetadata = {
+export let toggleButtonGroupComponentMetadata: ComponentMetadata = {
     styles: (e) => {
         return ``;
     },

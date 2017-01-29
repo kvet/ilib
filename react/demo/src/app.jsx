@@ -1,6 +1,6 @@
 import React from 'react';
 import { MyButton } from './button';
-import { Button, ToggleButton, ButtonGroup, RadioGroup } from 'ilib-react';
+import { Button, ToggleButton, ButtonGroup, ToggleButtonGroup } from 'ilib-react';
 import './app.css'
 
 export default class App extends React.Component {
@@ -52,8 +52,8 @@ export default class App extends React.Component {
                 </ButtonGroup>
 
                 <h2>RadioGroup component</h2>
-                <RadioGroup items={[1, 2, 3]} active={this.state.activeItem} onActivate={activateHandler}></RadioGroup>
-                <RadioGroup items={[1, 2, 3, 4, 5]} active={this.state.activeItem} onActivate={activateHandler}></RadioGroup>
+                <ToggleButtonGroup items={[1, 2, 3]} active={this.state.activeItem} onActivate={activateHandler}></ToggleButtonGroup>
+                <ToggleButtonGroup items={[1, 2, 3, 4, 5]} active={this.state.activeItem} onActivate={activateHandler}></ToggleButtonGroup>
             </div>
         )
     }

@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { IlButton, IlToggleButton, IlButtonGroup, IlRadioGroup } from 'ilib-vue'
+import { IlButton, IlToggleButton, IlButtonGroup, IlToggleButtonGroup } from 'ilib-vue'
 import './index.css'
 
 let App = {
@@ -53,10 +53,10 @@ let App = {
             </IlButtonGroup>
 
             <h2>RadioGroup component</h2>
-            <IlRadioGroup :items="[1, 2, 3]" :active="activeItem" @onActivate="activateHandler"></IlRadioGroup>
-            <IlRadioGroup :items="[1, 2, 3, 4, 5]" :active="activeItem" @onActivate="activateHandler"></IlRadioGroup>
+            <IlToggleButtonGroup :items="[1, 2, 3]" :active="activeItem" @onActivate="activateHandler"></IlToggleButtonGroup>
+            <IlToggleButtonGroup :items="[1, 2, 3, 4, 5]" :active="activeItem" @onActivate="activateHandler"></IlToggleButtonGroup>
         </div>`,
-    components: { IlButton, IlToggleButton, IlButtonGroup, IlRadioGroup }
+    components: { IlButton, IlToggleButton, IlButtonGroup, IlToggleButtonGroup }
 };
 
 new Vue({
