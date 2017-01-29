@@ -6,22 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-  <div id="app">
-    <my-component>{{ message }}</my-component>
-  </div>
+  <div id="app">{{message}}</div>
 
-  <script src="https://unpkg.com/vue/dist/vue.js"></script>
-  <script>
-    Vue.component('my-component', {
-      template: '<div>A custom component! <slot></slot></div>'
-    })
-
-    new Vue({
-      el: '#app',
-      data: {
-        message: 'Hello Vue.js!'
-      }
-    })
-  </script>
+  <script src="dist/bundle.js"></script>
 </body>
 </html>

@@ -30,6 +30,7 @@
     "style-loader": "^0.13.1",
     "systemjs": "0.19.41",
     "typescript": "~2.1.5",
+    "vue": "^2.1.10",
     "webpack": "^1.14.0",
     "zone.js": "^0.7.6"
   },
@@ -49,7 +50,14 @@
     "build:react:code": "npm run build:react:code:gen -s && npm run build:react:code:compile -s",
     "build:react:demo": "webpack --config react/demo/webpack.config.js",
     "build:react": "npm run build:react:code -s && npm run build:react:demo -s",
-    "build": "npm run build:core -s && npm run build:ng -s && npm run build:react -s",
+    "build:vue:code:gen:compile": "tsc -p vue/generator/src",
+    "build:vue:code:gen:run": "node vue/generator/dist/index.js",
+    "build:vue:code:gen": "npm run build:vue:code:gen:compile -s && npm run build:vue:code:gen:run -s",
+    "build:vue:code:compile": "babel vue/code/src -d vue/code/dist -q",
+    "build:vue:code": "npm run build:vue:code:gen -s && npm run build:vue:code:compile -s",
+    "build:vue:demo": "webpack --config vue/demo/webpack.config.js",
+    "build:vue": "npm run build:vue:code -s && npm run build:vue:demo -s",
+    "build": "npm run build:core -s && npm run build:ng -s && npm run build:react -s && npm run build:vue -s",
     "serve": "static -p 3000 -H \"{\\\"Cache-Control\\\": \\\"no-cache, must-revalidate\\\"}\""
   },
   "author": "",
