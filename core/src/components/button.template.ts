@@ -1,4 +1,4 @@
-import { Node, templateBuilder as tb } from '../template_definitions';
+import { Node, templateBuilder as tb } from '../definitions.template';
 
 export let template: Node = 
     tb.domNode(

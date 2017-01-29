@@ -11,8 +11,10 @@ import {
     ComponentTag,
     ForTemplate,
     Attr,
-    ComponentCall
-} from '../../../core/dist/template_definitions'
+    ComponentCall,
+    Getter,
+    StaticValue
+} from '../../../core/dist/definitions.template'
 
 let indent = (str: string): string =>
     str.split('\n').map(l => `    ${l}`).join('\n');
@@ -62,15 +64,7 @@ export function template(node: DomNode, components: { [key: string]: { tag: stri
     };
 
     let processTextNode = (textNode: TextNode): string => {
-        let content = textNode.content;
-        switch (content.type) {
-            case 'staticValue':
-                return content.value;
-            case 'localGetter':
-                return `{{${processGetter(content)}}}`;
-            default:
-                throw unsupported('text node content', content)
-        }
+        return `{{${processGetter(textNode.content)}}}`;
     };
 
     let processSlot = (slot: Slot) => '<ng-content></ng-content>';
@@ -102,29 +96,27 @@ export function template(node: DomNode, components: { [key: string]: { tag: stri
         }).join('\n');
     };
 
-    let processGetter = (getter: PropGetter|LocalGetter|ComponentCall, withinClass = false): string => {
-        switch (getter.type) {
-            case 'propGetter':
-                return `${withinClass ? 'this.' : ''}${<string>getter.name}`;
-            case 'componentCall':
-                let params = getter.params.map((param) => processGetter(param, withinClass)).join(', ');
-                return `${withinClass ? 'this.' : ''}component.${<string>getter.name}(${params})`;
-            case 'localGetter':
-            return `${<string>getter.name}`;
-            default:
-                throw unsupported('getter', getter)
-        }
+    let processGetter = (getter: Getter, withinClass = false): string => {
+        return ((getter: PropGetter|LocalGetter|ComponentCall|StaticValue): string => {
+            switch (getter.subtype) {
+                case 'propGetter':
+                    return `${withinClass ? 'this.' : ''}${<string>getter.name}`;
+                case 'componentCall':
+                    let params = getter.params.map((param) => processGetter(param, withinClass)).join(', ');
+                    return `${withinClass ? 'this.' : ''}component.${<string>getter.name}(${params})`;
+                case 'localGetter':
+                    return `${<string>getter.name}`;
+                case 'staticValue':
+                    return JSON.stringify(getter.value);
+                default:
+                    throw unsupported('getter', getter)
+            }
+        })(getter as any)
     };
 
     let processHandler = (handler: EventListener['handler'], withinClass = false): string => {
         if (handler.type === 'componentHandler') {
-            let paramsString = handler.params.map(param => {
-                if (param.type === 'localGetter') {
-                    return param.name;
-                } else {
-                    throw unsupported('handler param', param)
-                }
-            }).concat('$event').join(', ');
+            let paramsString = handler.params.map((param) => processGetter(param)).concat('$event').join(', ');
             return `${withinClass ? 'this.' : ''}component.${<string>handler.name}(${paramsString})`
         } else {
             throw unsupported('revent handler', handler)
