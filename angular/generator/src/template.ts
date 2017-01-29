@@ -72,7 +72,7 @@ export function template(node: DomNode, components: { [key: string]: { tag: stri
     let processForLoop = (forTemplate: ForTemplate) => {
         let of = processGetter(forTemplate.of);
         let value = processGetter(forTemplate.value);
-        let index = forTemplate.index ? ` let-i="${processGetter(forTemplate.index)}"` : '';
+        let index = forTemplate.index ? ` let-${processGetter(forTemplate.index)}="index"` : '';
 
         return `<template ngFor let-${value} [ngForOf]="${of}"${index}>\n` +
                indent(processNodeChildrens(forTemplate.childrens)) + '\n' + 
