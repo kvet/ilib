@@ -26,6 +26,7 @@
     "node-static": "^0.7.9",
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
+    "rimraf": "^2.5.4",
     "rxjs": "^5.0.2",
     "style-loader": "^0.13.1",
     "systemjs": "0.19.41",
@@ -57,7 +58,8 @@
     "build:vue:code": "npm run build:vue:code:gen -s && npm run build:vue:code:compile -s",
     "build:vue:demo": "webpack --config vue/demo/webpack.config.js",
     "build:vue": "npm run build:vue:code -s && npm run build:vue:demo -s",
-    "build": "npm run build:core -s && npm run build:ng -s && npm run build:react -s && npm run build:vue -s",
+    "clean": "rimraf angular/code/src/generated react/code/src/generated vue/code/src/generated",
+    "build": "npm run clean -s && npm run build:core -s && npm run build:ng -s && npm run build:react -s && npm run build:vue -s",
     "serve": "static -p 3000 -H \"{\\\"Cache-Control\\\": \\\"no-cache, must-revalidate\\\"}\""
   },
   "author": "",
