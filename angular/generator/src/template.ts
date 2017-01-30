@@ -13,7 +13,10 @@ import {
     Attr,
     ComponentCall,
     Getter,
-    StaticValue
+    StaticValue,
+    Template,
+    TemplateScopeGetter,
+    TemplateScopeHandler
 } from '../../../core/dist/definitions.template'
 
 let indent = (str: string): string =>
@@ -22,8 +25,10 @@ let indent = (str: string): string =>
 let unsupported = (name: string, data: any) =>
     `Unsupported ${name}: ${JSON.stringify(data)}`;
 
-export function template(node: DomNode, components: { [key: string]: { tag: string, attr?: string } }): { tag: string, rootAttrs: string, content: string, usedComponents: string[] } {
+export function template(node: DomNode, components: { [key: string]: { tag: string, attr?: string } }):
+    { tag: string, rootAttrs: string, content: string, usedComponents: string[], templateUsed: boolean } {
     let usedComponents = [];
+    let templateUsed = false;
 
     let processDomNode = (node: DomNode) => {
         let processNodeTag = (tag: DomNode['tag']): { tag: string, attr?: string } => {
@@ -69,7 +74,7 @@ export function template(node: DomNode, components: { [key: string]: { tag: stri
 
     let processSlot = (slot: Slot) => '<ng-content></ng-content>';
 
-    let processForLoop = (forTemplate: ForTemplate) => {
+    let processForTemplate = (forTemplate: ForTemplate) => {
         let of = processGetter(forTemplate.of);
         let value = processGetter(forTemplate.value);
         let index = forTemplate.index ? ` let-${processGetter(forTemplate.index)}="index"` : '';
@@ -79,8 +84,21 @@ export function template(node: DomNode, components: { [key: string]: { tag: stri
                '</template>';
     };
 
+    let processTemplate = (template: Template) => {
+        templateUsed = true;
+
+        let args = '{ ' + Object.keys(template.dataFields).map(name => {
+            let meta = template.dataFields[name];
+            let value = meta.type === 'getter' ? processGetter(meta) : processHandler(meta, { immediatlyInvocked: false });
+            return `${name}: ${value}`
+        }).join(', ') + ' }';
+        return `<template ilTemplateHost let-data [ilTemplateHostData]="${args}">\n` +
+               indent(processNodeChildrens(template.childrens)) + `\n` +
+               `</template>`;
+    };
+
     let processNodeChildrens = (childrens: Node[]): string => {
-        return childrens.map((children: DomNode|TextNode|ForTemplate|Slot): string => {
+        return childrens.map((children: DomNode|TextNode|ForTemplate|Slot|Template): string => {
             switch (children.subtype) {
                 case 'domNode':
                     return processDomNode(children);
@@ -89,23 +107,28 @@ export function template(node: DomNode, components: { [key: string]: { tag: stri
                 case 'textNode':
                     return processTextNode(children);
                 case 'forTemplate':
-                    return processForLoop(children);
+                    return processForTemplate(children);
+                case 'template':
+                    return processTemplate(children);
                 default:
                     throw unsupported('node type', children)
             }
         }).join('\n');
     };
 
-    let processGetter = (getter: Getter, withinClass = false): string => {
-        return ((getter: PropGetter|LocalGetter|ComponentCall|StaticValue): string => {
+    let processGetter = (getter: Getter, options: { withinClass?: boolean } = {}): string => {
+        options = Object.assign({ withinClass: false }, options);
+        return ((getter: PropGetter|LocalGetter|ComponentCall|StaticValue|TemplateScopeGetter): string => {
             switch (getter.subtype) {
                 case 'propGetter':
-                    return `${withinClass ? 'this.' : ''}${<string>getter.name}`;
+                    return `${options.withinClass ? 'this.' : ''}${<string>getter.name}`;
                 case 'componentCall':
-                    let params = getter.params.map((param) => processGetter(param, withinClass)).join(', ');
-                    return `${withinClass ? 'this.' : ''}component.${<string>getter.name}(${params})`;
+                    let params = getter.params.map((param) => processGetter(param, options)).join(', ');
+                    return `${options.withinClass ? 'this.' : ''}component.${<string>getter.name}(${params})`;
                 case 'localGetter':
                     return `${<string>getter.name}`;
+                case 'templateScopeGetter':
+                    return `data.${<string>getter.name}`;
                 case 'staticValue':
                     return JSON.stringify(getter.value);
                 default:
@@ -114,10 +137,13 @@ export function template(node: DomNode, components: { [key: string]: { tag: stri
         })(getter as any)
     };
 
-    let processHandler = (handler: EventListener['handler'], withinClass = false): string => {
+    let processHandler = (handler: EventListener['handler'], options: { withinClass?: boolean, immediatlyInvocked?: boolean } = {}): string => {
+        options = Object.assign({ withinClass: false, immediatlyInvocked: true }, options);
         if (handler.type === 'componentHandler') {
-            let paramsString = handler.params.map((param) => processGetter(param)).concat('$event').join(', ');
-            return `${withinClass ? 'this.' : ''}component.${<string>handler.name}(${paramsString})`
+            let paramsString = handler.params.map((param) => processGetter(param)).concat(options.immediatlyInvocked ? ['$event'] : []).join(', ');
+            return `${options.withinClass ? 'this.' : ''}component.${<string>handler.name}${!options.immediatlyInvocked ? '.bind' : ''}(${!options.immediatlyInvocked ? 'component, ' : ''}${paramsString})`
+        } else if (handler.type === 'templateScopeHandler') {
+            return `data.${<string>handler.name}($event)`
         } else {
             throw unsupported('revent handler', handler)
         }
@@ -127,13 +153,13 @@ export function template(node: DomNode, components: { [key: string]: { tag: stri
         return node.attrs.map(attr => {
             switch (attr.type) {
                 case 'classToggle':
-                    let state = processGetter(attr.state, true);
+                    let state = processGetter(attr.state, { withinClass: true });
 
                     return `@HostBinding('class.${<string>attr.name}') get _h_${<string>attr.name}() {\n` +
                             `    return ${state};\n` +
                             `}`;
                 case 'eventListener': 
-                    let handler = processHandler(attr.handler, true);
+                    let handler = processHandler(attr.handler, { withinClass: true });
 
                     return `@HostListener('${<string>attr.event.name}') _ho_${<string>attr.event.name}($event) {\n` +
                             `    return ${handler};\n` +
@@ -148,6 +174,7 @@ export function template(node: DomNode, components: { [key: string]: { tag: stri
         tag: typeof node.tag === 'string' ? node.tag : (() => { throw unsupported('root tag', node.tag) })(),
         rootAttrs: processRootAttrs(node.attrs),
         content: processNodeChildrens(node.childrens),
-        usedComponents
+        usedComponents,
+        templateUsed
     }
 }

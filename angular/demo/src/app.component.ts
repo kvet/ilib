@@ -8,21 +8,17 @@ import {
     selector: 'my-app',
     styles: [`
     b { color: brown; }
-    .green[ilib-button] { border: 1px solid green; padding: 4px; }
-    .green[ilib-radio_group] { border: 1px solid green; }
+    .greenButton { border: 1px solid green; }
 `],
     template: `
     <h1>ilib angular demo</h1>
 
     <h2>Native component</h2>
-    <my-button-group>
-        <my-button [disabled]="true">Opapa</my-button>
-        <my-button>Ololo</my-button>
-    </my-button-group>
+    <my-button [disabled]="true"><template myTemplate let-data myTemplateOf="default">> {{data.text}} <</template></my-button>
 
     <h2>Button component</h2>
     <button ilib-button (onClick)="clicked('g')"><b>Hello World Again!</b></button>
-    <button ilib-button class="green" (onClick)="clicked('g1')"><b>Hello Green World!</b></button>
+    <button ilib-button class="greenButton" (onClick)="clicked('g1')"><b>Hello Green World!</b></button>
 
     <h2>ToggleButton component</h2>
     <button ilib-button #btn [disabled]="false" (onClick)="clicked('btn')">Hello World!</button>
@@ -39,12 +35,16 @@ import {
     </div>
     
     <h2>RadioGroup component</h2>
-    <div ilib-toggle_button_group #rg [items]="[1, 2, 3]" [active]="1"></div>
-    <div ilib-toggle_button_group class="green" [items]="[1, 2, 3, 4, 5]" [(active)]="rg.active"></div>
+    <div ilib-toggle_button_group [items]="[1, 2, 3]" [(active)]="activeItem"></div>
+    <div ilib-toggle_button_group [items]="[1, 2, 3, 4, 5]" [(active)]="activeItem">
+        <button ilib-toggle_button [_reactiveMode]="true" *ilTemplate="let data" [active]="data.active" (onClick)="data.activate($event)" [class.greenButton]="data.index === 2">
+            <i>{{data.item}}</i>
+        </button>
+    </div>
 `
 })
 export class AppComponent {
-    buttonDisabled = false
+    activeItem = 1
 
     constructor() { }
 

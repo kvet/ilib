@@ -34,21 +34,27 @@ import {
     EventEmitter,
     HostListener,
     HostBinding,
-    OnInit
+    OnInit,
+    ChangeDetectionStrategy
 } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { ${definition.component} } from 'ilib';
 ${
-    'usedComponents' in template ? template['usedComponents'].map(name => {
+    template.usedComponents.map(name => {
         let definition = ilib.definitions.filter(c => c.name == name)[0];
         return `import { Il${name}Module } from './${definition.fileName}';`;
-    }).join('\n') : ''
+    }).join('\n')
+}
+${
+    template.templateUsed ? `import { IlTemplateHost, IlTemplateModule, IlTemplateDirective } from '../template';` : ''
 }
 
 @Component({
     selector: '${template.tag}[ilib-${definition.fileName}]',
     template: \`${template.content}\`,
-    styles: [\`${styles}\`]
+    styles: [\`${styles}\`],
+    providers: [${template.templateUsed ? 'IlTemplateHost' : ''}],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Il${definition.name}Component implements OnInit {
     private component: ${definition.component};
@@ -65,15 +71,9 @@ ${
         return `    @Output() ${event} = new EventEmitter();`;
     }).join('\n')
 }
-${
-    'classes' in template ? template['classes'] : ''
-}
-${
-    'events' in template ? template['events'] : ''
-}
-${
-    'rootAttrs' in template ? template['rootAttrs'] : ''
-}
+${template.rootAttrs}
+
+    ${template.templateUsed ? `constructor(templateHost: IlTemplateHost) {}` : ''}
 
     ngOnInit() {
         this.component = new ${definition.component}({
@@ -88,9 +88,9 @@ ${
 }
 
 @NgModule({
-    imports: [BrowserModule, ${'usedComponents' in template ? template['usedComponents'].map(name => `Il${name}Module`).join(', ') : ''}],
+    imports: [BrowserModule${template.templateUsed ? ', IlTemplateModule' : ''}, ${template.usedComponents.map(name => `Il${name}Module`).join(', ')}],
     declarations: [Il${definition.name}Component],
-    exports: [Il${definition.name}Component]
+    exports: [Il${definition.name}Component${template.templateUsed ? ', IlTemplateDirective' : ''}]
 })
 export class Il${definition.name}Module {}
 `;

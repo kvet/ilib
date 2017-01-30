@@ -53,8 +53,10 @@ export default class App extends React.Component {
 
                 <h2>RadioGroup component</h2>
                 <ToggleButtonGroup items={[1, 2, 3]} active={this.state.activeItem} onActivate={activateHandler}></ToggleButtonGroup>
-                <ToggleButtonGroup items={[1, 2, 3, 4, 5]} active={this.state.activeItem} onActivate={activateHandler}></ToggleButtonGroup>
-            </div>
+                <ToggleButtonGroup items={[1, 2, 3, 4, 5]} active={this.state.activeItem} onActivate={activateHandler}>{{
+                    default: (data) => <ToggleButton className={data.index === 2 ? 'greenButton' : ''} active={data.active} onClick={data.activate}><i>{data.item}</i></ToggleButton>
+                }}</ToggleButtonGroup>
+        </div>
         )
     }
 }

@@ -15,7 +15,10 @@ import {
     DomEvent,
     ComponentEvent,
     Getter,
-    StaticValue
+    StaticValue,
+    Template,
+    TemplateScopeGetter,
+    TemplateScopeHandler
 } from '../../../core/dist/definitions.template'
 
 const HOST_TAG = "ilibhost";
@@ -102,8 +105,19 @@ export function template(node: Node, componentName: string, components: { [key: 
                '</template>';
     };
 
+    let processTemplate = (template: Template) => {
+        let args = Object.keys(template.dataFields).map(name => {
+            let meta = template.dataFields[name];
+            let value = meta.type === 'getter' ? processGetter(meta) : processHandler(meta);
+            return `:${name}="${value}"`
+        }).join(' ');
+        return `<slot ${args}>\n` +
+               indent(processNodeChildrens(template.childrens)) + `\n` +
+               `</slot>`;
+    };
+
     let processNodeChildrens = (childrens: Node[]): string => {
-        return childrens.map((children: DomNode|TextNode|Slot|ForTemplate): string => {
+        return childrens.map((children: DomNode|TextNode|Slot|ForTemplate|Template): string => {
             switch (children.subtype) {
                 case 'domNode':
                     return processDomNode(children);
@@ -113,6 +127,8 @@ export function template(node: Node, componentName: string, components: { [key: 
                     return processTextNode(children);
                 case 'forTemplate':
                     return processForTemplate(children);
+                case 'template':
+                    return processTemplate(children);
                 default:
                     throw unsupported('node type', children)
             }
@@ -120,7 +136,7 @@ export function template(node: Node, componentName: string, components: { [key: 
     };
 
     let processGetter = (getter: Getter): string => {
-        return ((getter: PropGetter|LocalGetter|ComponentCall|StaticValue): string => {
+        return ((getter: PropGetter|LocalGetter|ComponentCall|StaticValue|TemplateScopeGetter): string => {
             switch (getter.subtype) {
                 case 'propGetter':
                     return `${<string>getter.name}`;
@@ -129,6 +145,8 @@ export function template(node: Node, componentName: string, components: { [key: 
                     return `component.${<string>getter.name}(${params})`;
                 case 'localGetter':
                     return `${<string>getter.name}`;
+                case 'templateScopeGetter':
+                    return processGetter(getter.originalGetter);
                 case 'staticValue':
                     return JSON.stringify(getter.value);
                 default:
@@ -141,6 +159,8 @@ export function template(node: Node, componentName: string, components: { [key: 
         if (handler.type === 'componentHandler') {
             let paramsString = handler.params.map(processGetter).concat('e').join(', ');
             return `(e) => component.${<string>handler.name}(${paramsString})`
+        } else if (handler.type === 'templateScopeHandler') {
+                return processHandler(handler.originalHandler);
         } else {
             throw unsupported('event handler', handler)
         }

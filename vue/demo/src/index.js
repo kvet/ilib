@@ -39,7 +39,7 @@ let App = {
                 Hello world!
             </IlButton>
             <IlToggleButton :active="disabledButton" @onClick="toggleHandler">
-                {{'< ' + (disabledButton ? 'enable' : 'disable')}}
+                < {{disabledButton ? 'enable' : 'disable'}}
             </IlToggleButton>
 
             <h2>ButtonGroup component</h2>
@@ -48,13 +48,19 @@ let App = {
                     Hello world!
                 </IlButton>
                 <IlToggleButton :active="disabledButtonInGroup" @onClick="toggleInGroupHandler">
-                    {{'< ' + (disabledButtonInGroup ? 'enable' : 'disable')}}
+                    < {{disabledButtonInGroup ? 'enable' : 'disable'}}
                 </IlToggleButton>
             </IlButtonGroup>
 
             <h2>RadioGroup component</h2>
             <IlToggleButtonGroup :items="[1, 2, 3]" :active="activeItem" @onActivate="activateHandler"></IlToggleButtonGroup>
-            <IlToggleButtonGroup :items="[1, 2, 3, 4, 5]" :active="activeItem" @onActivate="activateHandler"></IlToggleButtonGroup>
+            <IlToggleButtonGroup :items="[1, 2, 3, 4, 5]" :active="activeItem" @onActivate="activateHandler">
+                <template scope="props">
+                    <IlToggleButton :class="{ greenButton: props.index === 2 }" :active="props.active" @onClick="props.activate">
+                        <i>{{props.item}}</i>
+                    </IlToggleButton>
+                </template>
+            </IlToggleButtonGroup>
         </div>`,
     components: { IlButton, IlToggleButton, IlButtonGroup, IlToggleButtonGroup }
 };

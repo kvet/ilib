@@ -15,7 +15,10 @@ import {
     DomEvent,
     ComponentEvent,
     Getter,
-    StaticValue
+    StaticValue,
+    Template,
+    TemplateScopeGetter,
+    TemplateScopeHandler
 } from '../../../core/dist/definitions.template'
 
 const HOST_TAG = "data-ilibhost";
@@ -50,7 +53,7 @@ export function template(node: Node, componentName: string, components: { [key: 
                 .map((classToggle: ClassToggle) => {
                     return `(${processGetter(classToggle.state)} ? '${classToggle.name} ' : '')`
                 });
-            let classString = `className={(this.props.className || '')${classNames.length ? ' + ' : ''}${<string>classNames.join(' + ')}}`
+            let classString = `className={this.props.className + ' '${classNames.length ? ' + ' : ''}${<string>classNames.join(' + ')}}`
             let attrStrings = node.attrs
                 .filter(attr => attr.type !== 'classToggle')
                 .map(attr => {
@@ -102,8 +105,21 @@ export function template(node: Node, componentName: string, components: { [key: 
                '); }) }';
     };
 
+    let processTemplate = (template: Template) => {
+        let args = '{ ' + Object.keys(template.dataFields).map(name => {
+            let meta = template.dataFields[name];
+            let value = meta.type === 'getter' ? processGetter(meta) : processHandler(meta);
+            return `${name}: ${value}`
+        }).join(', ') + ' }';
+        return `(this.props.children && this.props.children.default\n` + 
+               `? this.props.children.default\n` +
+               `: (data) => \n` +
+               indent(processNodeChildrens(template.childrens)) + `\n` +
+               `)(${args})`;
+    };
+
     let processNodeChildrens = (childrens: Node[]): string => {
-        return childrens.map((children: DomNode|TextNode|ForTemplate|Slot): string => {
+        return childrens.map((children: DomNode|TextNode|ForTemplate|Slot|Template): string => {
             switch (children.subtype) {
                 case 'domNode':
                     return processDomNode(children);
@@ -113,6 +129,8 @@ export function template(node: Node, componentName: string, components: { [key: 
                     return processTextNode(children);
                 case 'forTemplate':
                     return processFooTemplate(children);
+                case 'template':
+                    return processTemplate(children);
                 default:
                     throw unsupported('node type', children)
             }
@@ -120,7 +138,7 @@ export function template(node: Node, componentName: string, components: { [key: 
     };
 
     let processGetter = (getter: Getter): string => {
-        return ((getter: PropGetter|LocalGetter|ComponentCall|StaticValue): string => {
+        return ((getter: PropGetter|LocalGetter|ComponentCall|StaticValue|TemplateScopeGetter): string => {
             switch (getter.subtype) {
                 case 'propGetter':
                     return `this.props.${<string>getter.name}`;
@@ -129,6 +147,8 @@ export function template(node: Node, componentName: string, components: { [key: 
                     return `this.component.${<string>getter.name}(${params})`;
                 case 'localGetter':
                     return `${<string>getter.name}`;
+                case 'templateScopeGetter':
+                    return `data.${<string>getter.name}`;
                 case 'staticValue':
                     return JSON.stringify(getter.value);
                 default:
@@ -141,6 +161,8 @@ export function template(node: Node, componentName: string, components: { [key: 
         if (handler.type === 'componentHandler') {
             let paramsString = handler.params.map(processGetter).concat('e').join(', ');
             return `(e) => this.component.${<string>handler.name}(${paramsString})`
+        } else if (handler.type === 'templateScopeHandler') {
+            return `(e) => data.${<string>handler.name}(e)`
         } else {
             throw unsupported('event handler', handler)
         }

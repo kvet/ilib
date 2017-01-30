@@ -41,7 +41,7 @@
     "build:ng:code:gen": "npm run build:ng:code:gen:compile -s && npm run build:ng:code:gen:run -s",
     "build:ng:code:compile": "ngc -p angular/code/src",
     "build:ng:code": "npm run build:ng:code:gen -s && npm run build:ng:code:compile -s",
-    "build:ng:demo": "ngc -p angular/demo/src",
+    "build:ng:demo": "tsc -p angular/demo/src",
     "build:ng": "npm run build:ng:code -s && npm run build:ng:demo -s",
     "build:react:code:gen:compile": "tsc -p react/generator/src",
     "build:react:code:gen:run": "node react/generator/dist/index.js",

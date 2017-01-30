@@ -8,13 +8,22 @@ export let template: Node =
             tb.componentTag('ButtonGroup'),
             [],
             tb.forTemplate(tb.propGetter('items'), (value, index) => 
-                tb.domNode(
-                    tb.componentTag('ToggleButton'),
-                    [
-                        tb.attr('active', tb.componentCall('isActive', index())),
-                        tb.eventListener('onClick', tb.componentHandler('activate', index()))
-                    ],
-                    tb.textNode(value())
+                tb.template(
+                    {
+                        active: tb.componentCall('isActive', index()),
+                        activate: tb.componentHandler('activate', index()),
+                        item: value(),
+                        index: index()
+                    },
+                    (getter, handler) =>
+                        tb.domNode(
+                            tb.componentTag('ToggleButton'),
+                            [
+                                tb.attr('active', getter('active')),
+                                tb.eventListener('onClick', handler('activate'))
+                            ],
+                            tb.textNode(getter('item'))
+                        )
                 )
             )
         )

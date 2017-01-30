@@ -5,12 +5,50 @@ import {
     Output,
     EventEmitter,
     HostBinding,
-    HostListener
+    HostListener,
+    Directive,
+    Injectable,
+    OnInit,
+    ViewContainerRef,
+    TemplateRef
 } from '@angular/core';
+
+@Injectable()
+export class MyTemplateHost {
+    public template: TemplateRef<any> 
+}
+
+@Directive({
+    selector: '[myTemplateHost][myTemplateHostData]'
+})
+export class MyTemplateHostDirective implements OnInit {
+    @Input('myTemplateHostData') data: any;
+
+    constructor(private viewContainer: ViewContainerRef, defaultTemplate: TemplateRef<any>, private templateHost: MyTemplateHost) {
+        if(!templateHost.template) 
+            templateHost.template = defaultTemplate
+    }
+
+    ngOnInit() {
+        this.viewContainer.createEmbeddedView(this.templateHost.template, { '$implicit': this.data });
+    }
+}
+
+@Directive({
+    selector: '[myTemplate][myTemplateOf]'
+})
+export class MyTemplateDirective {
+    @Input('myTemplateOf') name: string;
+
+    constructor(template: TemplateRef<any>, private templateHost: MyTemplateHost) {
+        templateHost.template = template
+    }
+}
 
 @Component({
     selector: 'my-button',
-    template: `<ng-content></ng-content>`,
+    providers: [MyTemplateHost],
+    template: `<template myTemplateHost let-data [myTemplateHostData]="{ text: 'Hello!' }">{{data.text}}</template>`,
     styles: [`
     :host { display: inline-block; border: 1px solid red; padding: 10px 5px; transition: all linear .2s; }
     :host(.disabled) { border: 1px solid gray; }
@@ -31,27 +69,8 @@ export class MyButtonComponent {
     };
 }
 
-@Component({
-    selector: 'my-button-group',
-    template: `<ng-content select="my-button"></ng-content>`,
-    styles: [`
-    :host { display: inline-block; }
-    :host-context(.theme-lime) {
-        :host {
-            bg: lime;
-        }
-    }
-    :host >>> my-button { border-color: brown; }
-    :host >>> my-button:first-child { border-radius: 3px 0 0 3px; }
-    :host >>> my-button:last-child { border-radius: 0 3px 3px 0; }
-    :host >>> my-button:not(:first-child) { margin-left: -1px; }
-`]
-})
-export class MyButtonGroupComponent {
-}
-
 @NgModule({
-    declarations: [MyButtonComponent, MyButtonGroupComponent],
-    exports: [MyButtonComponent, MyButtonGroupComponent]
+    declarations: [MyButtonComponent, MyTemplateHostDirective, MyTemplateDirective],
+    exports: [MyButtonComponent, MyTemplateDirective]
 })
 export class MyButtonModule {}
