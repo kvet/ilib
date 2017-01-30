@@ -52,7 +52,7 @@ let App = {
                 </IlToggleButton>
             </IlButtonGroup>
 
-            <h2>RadioGroup component</h2>
+            <h2>ToggleButtonGroup component</h2>
             <IlToggleButtonGroup :items="[1, 2, 3]" :active="activeItem" @onActivate="activateHandler"></IlToggleButtonGroup>
             <IlToggleButtonGroup :items="[1, 2, 3, 4, 5]" :active="activeItem" @onActivate="activateHandler">
                 <template scope="props">

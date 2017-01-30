@@ -34,7 +34,7 @@ import {
         </button>
     </div>
     
-    <h2>RadioGroup component</h2>
+    <h2>ToggleButtonGroup component</h2>
     <div ilib-toggle_button_group [items]="[1, 2, 3]" [(active)]="activeItem"></div>
     <div ilib-toggle_button_group [items]="[1, 2, 3, 4, 5]" [(active)]="activeItem">
         <button ilib-toggle_button [_reactiveMode]="true" *ilTemplate="let data" [active]="data.active" (onClick)="data.activate($event)" [class.greenButton]="data.index === 2">
