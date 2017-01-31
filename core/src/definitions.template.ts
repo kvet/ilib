@@ -111,13 +111,14 @@ export interface ComponentEvent extends Element {
 
 export interface DomEvent extends Element {
     readonly type: 'domEvent'
-    readonly name: 'click'
+    readonly name: string
 }
 
 export interface ComponentTag extends Element {
     readonly type: 'componentTag'
     readonly name: string
 }
+
 
 let templateBuilderInternal = {
     staticValue(value: StaticValue['value']): StaticValue {
@@ -134,9 +135,9 @@ let templateBuilderInternal = {
     },
 };
 
-export let templateBuilder = {
+let templateBuilder = {
     // Nodes
-    domNode(tag: DomNode['tag'], attrs: DomNode['attrs'], ...childrens: DomNode['childrens']): DomNode {
+    domNode(tag: DomNode['tag'], attrs: DomNode['attrs'], childrens: DomNode['childrens']): DomNode {
         return { type: 'node', subtype: 'domNode', tag, attrs, childrens };
     },
     textNode(content: TextNode['content']|string): TextNode {
@@ -160,7 +161,7 @@ export let templateBuilder = {
     slot(): Slot { 
         return { type: 'node', subtype: 'slot' }; 
     },
-    template<T extends { [key: string]: Getter|ComponentHandler }>(
+    template<T extends { [key: string]: Getter|ComponentHandler|TemplateScopeHandler }>(
         dataFields: T,
         on: (getter: (name: keyof T) => TemplateScopeGetter, handler: (name: keyof T) => TemplateScopeHandler) => Node|Node[]
     ): Template {
@@ -188,17 +189,135 @@ export let templateBuilder = {
         return { type: 'domEvent', name: name }
     },
 
+    // Composition
+    componentTag(name: ComponentTag['name']): ComponentTag { 
+        return { type: 'componentTag', name }; 
+    },
+};
+
+export interface JSXNode {
+    type: 'slot'|'domNode'|'componentNode'|'forTemplate'|'template'|'textNode'
+}
+
+export interface JSXElementClass {
+    type: JSXNode['type']
+}
+
+export interface JSXDomNodeProps { 
+    tag: 'div'|'button',
+    classNames?: { [key: string]: Getter },
+    eventListeners?: { [key: string]: ComponentHandler|TemplateScopeHandler }
+}
+
+export interface JSXComponentNodeProps { 
+    name: string,
+    props?: { [key: string]: Getter },
+    events?: { [key: string]: ComponentHandler|TemplateScopeHandler }
+}
+
+export interface JSXForTemplateNodeProps { 
+    of: Getter
+}
+
+export interface JSXTemplateNodeProps { 
+    dataFields: { [key: string]: Getter|ComponentHandler|TemplateScopeHandler }
+}
+
+export interface JSXTextNode { 
+    content: string|Getter
+}
+
+let unsupported = (name: string, data: any) =>
+    `Unsupported ${name}: ${JSON.stringify(data)}`;
+
+export let h = {
+    createElement(tagConstructor: () => JSXElementClass, _attrs, ..._childrens): Node {
+        let type = tagConstructor().type;
+
+        switch (type) {
+            case 'slot': {
+                if(_childrens.length) throw unsupported('childrens in slot', _childrens);
+
+                return templateBuilder.slot();
+            } case 'domNode': {
+                let attrs = _attrs as JSXDomNodeProps;
+                if(_childrens.filter((c: Node) => !c.type && !c.subtype).length)
+                    throw unsupported('not node childrens in domNode', _childrens);
+                let childrens = _childrens as Node[];
+
+                let classAttrs = Object.keys(attrs.classNames || []).map(className => {
+                    return templateBuilder.classToggle(className, attrs.classNames[className]);
+                });
+                let eventListeners = Object.keys(attrs.eventListeners || []).map(eventListener => {
+                    return templateBuilder.eventListener(templateBuilder.domEvent(eventListener), attrs.eventListeners[eventListener]);
+                });
+                
+                return templateBuilder.domNode(attrs.tag, [...classAttrs, ...eventListeners], childrens);
+            } case 'componentNode': {
+                let attrs = _attrs as JSXComponentNodeProps;
+                if(_childrens.filter((c: Node) => !c.type && !c.subtype).length)
+                    throw unsupported('not node childrens in componentNode', _childrens);
+                let childrens = _childrens as Node[];
+
+                let props = Object.keys(attrs.props || []).map(attr => {
+                    return templateBuilder.attr(attr, attrs.props[attr])
+                });
+                let events = Object.keys(attrs.events || []).map(event => {
+                    return templateBuilder.eventListener(event, attrs.events[event])
+                });
+
+                return templateBuilder.domNode(templateBuilder.componentTag(attrs.name), [...props, ...events], childrens);
+            } case 'forTemplate': {
+                let attrs = _attrs as JSXForTemplateNodeProps;
+                if(_childrens.length !== 1 || typeof _childrens[0] !== 'function')
+                    throw unsupported('not function children in forTemplate', _childrens);
+                    
+                return templateBuilder.forTemplate(attrs.of, _childrens[0]);
+            } case 'template': {
+                let attrs = _attrs as JSXTemplateNodeProps;
+                if(_childrens.length !== 1 || typeof _childrens[0] !== 'function')
+                    throw unsupported('not function children in template', _childrens);
+                    
+                return templateBuilder.template(attrs.dataFields, _childrens[0]);
+            } case 'textNode': {
+                let attrs = _attrs as JSXTextNode;
+                if(_childrens.length) throw unsupported('childrens in slot', _childrens);
+                    
+                return templateBuilder.textNode(attrs.content);
+            } default: {
+                 throw unsupported('tag type', type);
+            }
+        }
+    },
+
+    // JSXNodes
+    domNode(): { type: JSXNode['type'], props?: JSXDomNodeProps } {
+        return { type: 'domNode' };
+    },
+    componentNode(): { type: JSXNode['type'], props?: JSXComponentNodeProps } {
+        return { type: 'componentNode' };
+    },
+    forTemplate(): { type: JSXNode['type'], props?: JSXForTemplateNodeProps } {
+        return { type: 'forTemplate' };
+    },
+    template(): { type: JSXNode['type'], props?: JSXTemplateNodeProps } {
+        return { type: 'template' };
+    },
+    textNode(): { type: JSXNode['type'], props?: JSXTextNode } {
+        return { type: 'textNode' };
+    },
+    slot(): { type: JSXNode['type'] }  {
+        return { type: 'slot' }
+    },
+
     // Access
-    propGetter(name: PropGetter['name']): PropGetter { return { type: 'getter', subtype: 'propGetter', name }; },
+    propGetter(name: PropGetter['name']): PropGetter { 
+        return { type: 'getter', subtype: 'propGetter', name };
+    },
     componentCall(name: ComponentCall['name'], ...params: ComponentCall['params']): ComponentCall { 
         return { type: 'getter', subtype: 'componentCall', name, params }; 
     },
     componentHandler(name: ComponentHandler['name'], ...params: ComponentHandler['params']): ComponentHandler { 
         return { type: 'componentHandler', name, params }; 
     },
-
-    // Composition
-    componentTag(name: ComponentTag['name']): ComponentTag { 
-        return { type: 'componentTag', name }; 
-    },
-};
+}
