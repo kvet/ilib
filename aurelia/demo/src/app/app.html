@@ -1,6 +1,10 @@
 <template>
     <require from="./inline"></require>
 
+    <h1>ilib aurelia demo</h1>
+
+    <h2>Native component</h2>
+
     <div class="container-fluid">
       <h4 class="page-header">Inline template in custom component</h4>
       <div class="form-group">
@@ -20,5 +24,33 @@
           </div>
       </div>
     </div>
+
+    <require from="./generated/button"></require>
+
+    <h2>Button component</h2>
+    <il-button onClick.call="alert('clicked')">Hello world!</il-button>
+    <il-button class="greenButton" onClick.call="alert('green clicked')">Hello green world!</il-button>
+
+    <require from="./generated/toggle_button"></require>
+
+    <h2>ToggleButton component</h2>
+    <il-button disabled.bind="disabledButton" onClick.call="alert('clicked')">
+        Hello world!
+    </il-button>
+    <il-toggle-button active.bind="disabledButton" onClick.call="disabledButton = !disabledButton">
+        < ${disabledButton ? 'enable' : 'disable'}
+    </il-toggle-button>
+
+    <require from="./generated/button_group"></require>
+
+    <h2>ButtonGroup component</h2>
+    <il-button-group>
+        <il-button disabled.bind="disabledButtonInGroup" onClick.call="alert('clickedInGroup')">
+            Hello world!
+        </il-button>
+        <il-toggle-button active.bind="disabledButtonInGroup" onClick.call="disabledButtonInGroup = !disabledButtonInGroup">
+            < ${disabledButtonInGroup ? 'enable' : 'disable'}
+        </il-toggle-button>
+    </il-button-group>
 
 </template>

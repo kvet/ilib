@@ -43,6 +43,12 @@ module.exports = {
             { test: /\.html$/, loader:'html', exclude: path.resolve('src/index.html') }
         ]
     },
+    resolve: {
+        alias: {
+            'ilib': path.join(__dirname, '../../core/dist'),
+            'ilib-aurelia': path.join(__dirname, '../code/dist')
+        }
+    },
     plugins: [
         new AureliaWebPackPlugin(),
         new webpack.optimize.CommonsChunkPlugin({ name: ['aurelia']}),
