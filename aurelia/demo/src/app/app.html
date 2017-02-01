@@ -1,5 +1,24 @@
 <template>
-    <h1>Hello Freakin' world.</h1>
-    <div>${message}</div>
-    <input type="text" value.bind="message">
+    <require from="./inline"></require>
+
+    <div class="container-fluid">
+      <h4 class="page-header">Inline template in custom component</h4>
+      <div class="form-group">
+          <label>Template:</label>
+          <input class="form-control" type="text" value.bind="customTemplate" />
+      </div>
+  
+      <div class="form-group">
+          <label>Display Value:</label>
+          <input class="form-control" type="text" value.bind="customValue" />
+      </div>
+  
+      <div class="panel panel-primary">
+          <div class="panel-heading">Rendered view:</div>
+          <div class="panel-body">
+              <inline template.bind="customTemplate" display-value.bind="customValue"></inline>
+          </div>
+      </div>
+    </div>
+
 </template>
