@@ -1,5 +1,5 @@
 export class App {
-    customTemplate = '<i class="fa fa-3x fa-${displayValue}"></i>';
+    customTemplate = '<i class="fa fa-3x fa-${displayValue}">displayValue</i>';
     customValue = 'stack-overflow';
 
     alert(text) {

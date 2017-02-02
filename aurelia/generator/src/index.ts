@@ -19,8 +19,6 @@ try {
     fs.mkdirSync(path.resolve(__dirname, `../../code/src/generated`))
 } catch(e) {}
 for (let definition of ilib.definitions) {
-    if(definition.name === "ToggleButtonGroup") continue;
-
     componentIds[definition.name] = { shadowId: '' + Math.floor(Math.random() * 10000) };
 
     let metadata: ilib.ComponentMetadata = ilib[definition.metadata];

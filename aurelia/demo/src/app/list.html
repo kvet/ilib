@@ -1,0 +1,10 @@
+<template>
+  The List
+  <ol>
+    <li repeat.for="row of rows">
+      <template replaceable part="row-template" a="row">
+        ${row}
+      </template>
+    </li>
+  </ol>
+</template>

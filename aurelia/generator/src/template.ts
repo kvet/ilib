@@ -90,7 +90,7 @@ export function template(node: Node, componentName: string, components: { [key: 
     };
 
     let processTextNode = (textNode: TextNode): string => {
-        return `{{${processGetter(textNode.content)}}}`;
+        return `\${${processGetter(textNode.content)}}`;
     };
 
     let processSlot = (slot: Slot) => '<slot></slot>';
@@ -100,7 +100,7 @@ export function template(node: Node, componentName: string, components: { [key: 
         let value = processGetter(forTemplate.value);
         let index = forTemplate.index ? `, ${processGetter(forTemplate.index)}` : ''
         
-        return `<template v-for="(${value}${index}) in ${of}">\n` +
+        return `<template repeat.for="${value} of ${of}">\n` +
                indent(processNodeChildrens(forTemplate.childrens)) + '\n' + 
                '</template>';
     };
@@ -139,12 +139,14 @@ export function template(node: Node, componentName: string, components: { [key: 
         return ((getter: PropGetter|LocalGetter|ComponentCall|StaticValue|TemplateScopeGetter): string => {
             switch (getter.subtype) {
                 case 'propGetter':
-                    return `${<string>getter.name}`;
+                    return getter.name;
                 case 'componentCall':
                     let params = getter.params.map((param) => processGetter(param)).join(', ');
                     return `component.${<string>getter.name}(${params})`;
                 case 'localGetter':
-                    return `${<string>getter.name}`;
+                    if(getter.name === "index") // Funny hack for repeat.for $index
+                        return '$index'
+                    return getter.name;
                 case 'templateScopeGetter':
                     return processGetter(getter.originalGetter);
                 case 'staticValue':
