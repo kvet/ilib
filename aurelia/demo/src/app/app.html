@@ -17,6 +17,28 @@
         </template>
     </list>
 
+    <require from="./slotted"></require>
+
+    <h2>Slots example</h2>
+    <slotted></slotted>
+    <slotted><span slot="fullName">c:fullName</span></slotted>
+    <slotted><span slot="firstName">c:firstName</span></slotted>
+    <slotted>
+        <span slot="firstName">c:firstName</span>
+        <span slot="lastName">c:lastName</span>
+    </slotted>
+
+    <require from="./scoped-slotted"></require>
+            
+    <h2>ScopedSlots example</h2>
+    <scoped-slotted></scoped-slotted>
+    <scoped-slotted><template replace-part="fullName">${data}</template></scoped-slotted>
+    <scoped-slotted><template replace-part="firstName">${data}</template></scoped-slotted>
+    <scoped-slotted>
+        <template replace-part="firstName">${data}</template>
+        <template replace-part="lastName">${data}</template>
+    </scoped-slotted>
+
     <require from="./generated/button"></require>
 
     <h2>Button component</h2>

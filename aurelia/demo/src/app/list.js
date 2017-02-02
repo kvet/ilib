@@ -1,7 +1,6 @@
 import { bindable } from 'aurelia-framework';
 
-export class List
-{
+export class List {
     @bindable
     rows = [{name: "John"}];
 }

@@ -13,8 +13,23 @@ import {
     template: `
     <h1>ilib angular demo</h1>
 
-    <h2>Native component</h2>
-    <my-button [disabled]="true"><template myTemplate let-data myTemplateOf="default">> {{data.text}} <</template></my-button>
+    <h2>Slots example</h2>
+    <slotted></slotted>
+    <slotted><span full-name>c:fullName</span></slotted>
+    <slotted><span first-name>c:firstName</span></slotted>
+    <slotted>
+        <span first-name>c:firstName</span>
+        <span last-name>c:lastName</span>
+    </slotted>
+            
+    <h2>ScopedSlots example</h2>
+    <scoped-slotted></scoped-slotted>
+    <scoped-slotted><template scopedSlotted let-scope scopedSlottedOf="firstName">{{scope.data}}</template></scoped-slotted>
+    <scoped-slotted><template scopedSlotted let-scope scopedSlottedOf="fullName">{{scope.data}}</template></scoped-slotted>
+    <scoped-slotted>
+        <template scopedSlotted let-scope scopedSlottedOf="firstName">{{scope.data}}</template>
+        <template scopedSlotted let-scope scopedSlottedOf="lastName">{{scope.data}}</template>
+    </scoped-slotted>
 
     <h2>Button component</h2>
     <button ilib-button (onClick)="clicked('g')"><b>Hello World Again!</b></button>

@@ -1,0 +1,12 @@
+<template style="display: block;">
+    <template with.bind="{ data: 'a:fullName' }">
+        <template replaceable part="fullName">
+            <template with.bind="{ data: 'a:firstName' }">
+                <template replaceable part="firstName">d:firstName</template>
+            </template>
+            <template with.bind="{ data: 'a:lastName' }">
+                <template replaceable part="lastName">d:lastName</template>
+            </template>
+        </template>
+    </template>
+</template>
