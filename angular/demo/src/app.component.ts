@@ -36,9 +36,9 @@ import {
     <button ilib-button class="greenButton" (onClick)="clicked('g1')"><b>Hello Green World!</b></button>
 
     <h2>ToggleButton component</h2>
-    <button ilib-button #btn [disabled]="false" (onClick)="clicked('btn')">Hello World!</button>
-    <button ilib-toggle_button [(active)]="btn.disabled">
-        < {{btn.disabled ? 'enable' : 'disable'}}
+    <button ilib-button [disabled]="tbtn.active" (onClick)="clicked('btn')">Hello World!</button>
+    <button ilib-toggle_button #tbtn [active]="false">
+        < {{tbtn.active ? 'enable' : 'disable'}}
     </button>
     
     <h2>ButtonGroup component</h2>
