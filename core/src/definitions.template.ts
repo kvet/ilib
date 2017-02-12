@@ -13,6 +13,7 @@ export interface DomNode extends Node {
     readonly tag: string|ComponentTag
     readonly attrs: (ClassToggle|Attr|EventListener)[]
     readonly childrens: Node[]
+    readonly ref?: string
 }
 
 export interface TextNode extends Node {
@@ -52,6 +53,11 @@ export interface StaticValue extends Getter {
 
 export interface PropGetter extends Getter {
     readonly subtype: 'propGetter'
+    readonly name: string
+}
+
+export interface StateGetter extends Getter {
+    readonly subtype: 'stateGetter'
     readonly name: string
 }
 
@@ -137,8 +143,8 @@ let templateBuilderInternal = {
 
 let templateBuilder = {
     // Nodes
-    domNode(tag: DomNode['tag'], attrs: DomNode['attrs'], childrens: DomNode['childrens']): DomNode {
-        return { type: 'node', subtype: 'domNode', tag, attrs, childrens };
+    domNode(tag: DomNode['tag'], attrs: DomNode['attrs'], childrens: DomNode['childrens'], ref?: DomNode['ref']): DomNode {
+        return { type: 'node', subtype: 'domNode', tag, attrs, childrens, ref };
     },
     textNode(content: TextNode['content']|string): TextNode {
         content = typeof content === 'string' ? templateBuilderInternal.staticValue(content) : content;
@@ -207,12 +213,14 @@ export interface JSXDomNodeProps {
     tag: 'div'|'button',
     classNames?: { [key: string]: Getter },
     eventListeners?: { [key: string]: ComponentHandler|TemplateScopeHandler }
+    ref?: string
 }
 
 export interface JSXComponentNodeProps { 
     name: string,
     props?: { [key: string]: Getter },
     events?: { [key: string]: ComponentHandler|TemplateScopeHandler }
+    ref?: string
 }
 
 export interface JSXForTemplateNodeProps { 
@@ -252,7 +260,7 @@ export let h = {
                     return templateBuilder.eventListener(templateBuilder.domEvent(eventListener), attrs.eventListeners[eventListener]);
                 });
                 
-                return templateBuilder.domNode(attrs.tag, [...classAttrs, ...eventListeners], childrens);
+                return templateBuilder.domNode(attrs.tag, [...classAttrs, ...eventListeners], childrens, attrs.ref);
             } case 'componentNode': {
                 let attrs = _attrs as JSXComponentNodeProps;
                 if(_childrens.filter((c: Node) => !c.type && !c.subtype).length)
@@ -266,7 +274,7 @@ export let h = {
                     return templateBuilder.eventListener(event, attrs.events[event])
                 });
 
-                return templateBuilder.domNode(templateBuilder.componentTag(attrs.name), [...props, ...events], childrens);
+                return templateBuilder.domNode(templateBuilder.componentTag(attrs.name), [...props, ...events], childrens, attrs.ref);
             } case 'forTemplate': {
                 let attrs = _attrs as JSXForTemplateNodeProps;
                 if(_childrens.length !== 1 || typeof _childrens[0] !== 'function')
@@ -313,6 +321,9 @@ export let h = {
     // Access
     propGetter(name: PropGetter['name']): PropGetter { 
         return { type: 'getter', subtype: 'propGetter', name };
+    },
+    stateGetter(name: StateGetter['name']): StateGetter { 
+        return { type: 'getter', subtype: 'stateGetter', name };
     },
     componentCall(name: ComponentCall['name'], ...params: ComponentCall['params']): ComponentCall { 
         return { type: 'getter', subtype: 'componentCall', name, params }; 

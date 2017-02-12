@@ -7,7 +7,8 @@ import {
   IlButtonModule,
   IlToggleButtonModule,
   IlButtonGroupModule,
-  IlToggleButtonGroupModule
+  IlToggleButtonGroupModule,
+  IlSizerModule
 } from 'ilib-ng';
 import { MyButtonModule } from './button.component';
 
@@ -21,6 +22,7 @@ import { MyButtonModule } from './button.component';
     IlToggleButtonModule,
     IlButtonGroupModule,
     IlToggleButtonGroupModule,
+    IlSizerModule,
     MyButtonModule
   ],
   bootstrap: [AppComponent],

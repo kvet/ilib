@@ -10,6 +10,10 @@ export { template as buttonGroupComponentTemplate } from './components/button_gr
 export { template as toggleButtonComponentTemplate } from './components/toggle_button.template'
 export { template as toggleButtonGroupComponentTemplate } from './components/toggle_button_group.template'
 
+export * from './components/sizer';
+
+export { template as sizerComponentTemplate } from './components/sizer.template'
+
 export let definitions: {
     fileName: string;
     name: string;
@@ -44,5 +48,13 @@ export let definitions: {
         component: 'ToggleButtonGroupComponent',
         metadata: 'toggleButtonGroupComponentMetadata',
         template: 'toggleButtonGroupComponentTemplate'
-    }
+    },
+
+    {
+        fileName: 'sizer',
+        name: 'Sizer',
+        component: 'SizerComponent',
+        metadata: 'sizerComponentMetadata',
+        template: 'sizerComponentTemplate'
+    },
 ]

@@ -16,6 +16,7 @@ import {
     ComponentEvent,
     Getter,
     StaticValue,
+    StateGetter,
     Template,
     TemplateScopeGetter,
     TemplateScopeHandler
@@ -83,6 +84,7 @@ export function template(node: Node, componentName: string, components: { [key: 
         };
         let tag = processNodeTag(node.tag);
         let attrs = processNodeAttrs(node.attrs);
+        if(node.ref) attrs = `ref={(node) => { this._refs['${node.ref}'] = node; }}\n` + attrs;
         
         return `<${tag}${attrs.length ? `\n${indent(`${attrs}`)}` : ''}>\n` +
                indent(processNodeChildrens(node.childrens)) +
@@ -100,25 +102,27 @@ export function template(node: Node, componentName: string, components: { [key: 
         let value = processGetter(forTemplate.value);
         let index = forTemplate.index ? `, ${processGetter(forTemplate.index)}` : ''
         
-        return `{ ${of}.map((${value}${index}) => { return (\n` +
-               indent(processNodeChildrens(forTemplate.childrens)) + '\n' + 
-               '); }) }';
+        return `{ ${of}.map((${value}${index}) =>\n` +
+               indent(processNodeChildrens(forTemplate.childrens, 'js')) + '\n' + 
+               ') }';
     };
 
-    let processTemplate = (template: Template) => {
+    let processTemplate = (template: Template, context: 'js'|'jsx') => {
         let args = '{ ' + Object.keys(template.dataFields).map(name => {
             let meta = template.dataFields[name];
             let value = meta.type === 'getter' ? processGetter(meta) : processHandler(meta);
             return `${name}: ${value}`
         }).join(', ') + ' }';
-        return `(this.props.children && this.props.children.default\n` + 
+        let wrapJs = context === 'jsx';
+
+        return `${wrapJs ? '{ ' : ''}(this.props.children && this.props.children.default\n` + 
                `? this.props.children.default\n` +
                `: (data) => \n` +
                indent(processNodeChildrens(template.childrens)) + `\n` +
-               `)(${args})`;
+               `)(${args})${wrapJs ? ' }' : ''}`;
     };
 
-    let processNodeChildrens = (childrens: Node[]): string => {
+    let processNodeChildrens = (childrens: Node[], context: 'js'|'jsx' = 'jsx'): string => {
         return childrens.map((children: DomNode|TextNode|ForTemplate|Slot|Template): string => {
             switch (children.subtype) {
                 case 'domNode':
@@ -130,7 +134,7 @@ export function template(node: Node, componentName: string, components: { [key: 
                 case 'forTemplate':
                     return processFooTemplate(children);
                 case 'template':
-                    return processTemplate(children);
+                    return processTemplate(children, context);
                 default:
                     throw unsupported('node type', children)
             }
@@ -138,10 +142,12 @@ export function template(node: Node, componentName: string, components: { [key: 
     };
 
     let processGetter = (getter: Getter): string => {
-        return ((getter: PropGetter|LocalGetter|ComponentCall|StaticValue|TemplateScopeGetter): string => {
+        return ((getter: PropGetter|StateGetter|LocalGetter|ComponentCall|StaticValue|TemplateScopeGetter): string => {
             switch (getter.subtype) {
                 case 'propGetter':
                     return `this.props.${<string>getter.name}`;
+                case 'stateGetter':
+                    return `this.state.${<string>getter.name}`;
                 case 'componentCall':
                     let params = getter.params.map((param) => processGetter(param)).join(', ');
                     return `this.component.${<string>getter.name}(${params})`;

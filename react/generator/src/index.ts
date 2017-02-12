@@ -45,8 +45,21 @@ export class ${definition.name} extends Component {
                 this.props[name] && this.props[name](e);
             },
             getProp: (name) => this.props[name],
-            setProp: () => {}
+            setProp: () => {},
+            getState: (name) => this.state[name],
+            setState: (name, value) => { this.setState({ [name]: value })},
+            getRef: (name) => this._refs[name]
         });
+
+        this._refs = {}
+
+        ${metadata.state ? `this.state = ${JSON.stringify(metadata.state)}` : ''} 
+    }
+    componentDidMount() {
+        this.component.mounted && this.component.mounted();
+    }
+    componentWillUnmount() {
+        this.component.unmounting && this.component.unmounting();
     }
     render() {
         return (

@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { IlButton, IlToggleButton, IlButtonGroup, IlToggleButtonGroup } from 'ilib-vue'
+import { IlButton, IlToggleButton, IlButtonGroup, IlToggleButtonGroup, IlSizer } from 'ilib-vue'
 import './index.css'
 import { Slotted, ScopedSlotted } from './slotted'
 
@@ -78,8 +78,17 @@ let App = {
                     </IlToggleButton>
                 </template>
             </IlToggleButtonGroup>
+
+            <h2>Sizer component</h2>
+            <IlSizer>
+                <template scope="props">
+                    <div style="border: 1px solid black"> 
+                        <span>Caclulated Size: {{props.width}}x{{props.height}}</span>
+                    </div>
+                </template>
+            </IlSizer>
         </div>`,
-    components: { IlButton, IlToggleButton, IlButtonGroup, IlToggleButtonGroup, Slotted, ScopedSlotted }
+    components: { IlButton, IlToggleButton, IlButtonGroup, IlToggleButtonGroup, IlSizer, Slotted, ScopedSlotted }
 };
 
 new Vue({

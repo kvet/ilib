@@ -42,12 +42,22 @@ export const Il${definition.name} = {
                 this.$emit(name, e);
             },
             getProp: (name) => this[name],
-            setProp: () => {}
+            setProp: () => {},
+            getState: (name) => this[name],
+            setState: (name, value) => { this[name] = value },
+            getRef: (name) => this.$refs[name]
         });
+    },
+    mounted() {
+        this.component.mounted && this.component.mounted();
+    },
+    beforeDestroy() {
+        this.component.unmounting && this.component.unmounting();
     },
     data() {
         return {
-            component: this.component
+            component: this.component,
+            ${Object.keys(metadata.state || {}).map(prop => `${prop}: ${JSON.stringify(metadata.state[prop])}`).join(',\n')}
         }
     },
     props: [${Object.keys(metadata.props).map(prop => `'${prop}'`).join(', ')}],

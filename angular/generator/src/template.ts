@@ -4,6 +4,7 @@ import {
     ClassToggle,
     EventListener,
     PropGetter,
+    StateGetter,
     Slot,
     ComponentHandler,
     LocalGetter,
@@ -26,7 +27,7 @@ let unsupported = (name: string, data: any) =>
     `Unsupported ${name}: ${JSON.stringify(data)}`;
 
 export function template(node: DomNode, components: { [key: string]: { tag: string, attr?: string } }):
-    { tag: string, rootAttrs: string, content: string, usedComponents: string[], templateUsed: boolean } {
+    { tag: string, rootAttrs: string, content: string, usedComponents: string[], templateUsed: boolean, rootRef: string } {
     let usedComponents = [];
     let templateUsed = false;
 
@@ -118,9 +119,10 @@ export function template(node: DomNode, components: { [key: string]: { tag: stri
 
     let processGetter = (getter: Getter, options: { withinClass?: boolean } = {}): string => {
         options = Object.assign({ withinClass: false }, options);
-        return ((getter: PropGetter|LocalGetter|ComponentCall|StaticValue|TemplateScopeGetter): string => {
+        return ((getter: PropGetter|StateGetter|LocalGetter|ComponentCall|StaticValue|TemplateScopeGetter): string => {
             switch (getter.subtype) {
                 case 'propGetter':
+                case 'stateGetter':
                     return `${options.withinClass ? 'this.' : ''}${<string>getter.name}`;
                 case 'componentCall':
                     let params = getter.params.map((param) => processGetter(param, options)).join(', ');
@@ -173,6 +175,7 @@ export function template(node: DomNode, components: { [key: string]: { tag: stri
     return {
         tag: typeof node.tag === 'string' ? node.tag : (() => { throw unsupported('root tag', node.tag) })(),
         rootAttrs: processRootAttrs(node.attrs),
+        rootRef: node.ref,
         content: processNodeChildrens(node.childrens),
         usedComponents,
         templateUsed

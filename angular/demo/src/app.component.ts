@@ -56,6 +56,13 @@ import {
             <i>{{data.item}}</i>
         </button>
     </div>
+
+    <h2>Sizer</h2>
+    <div ilib-sizer>
+        <div *ilTemplate="let data" [style.border]="'1px solid black'">
+            <span>Caclulated Size: {{data.width}}x{{data.height}}</span>
+        </div>
+    </div>
 `
 })
 export class AppComponent {

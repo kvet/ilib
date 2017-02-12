@@ -25,6 +25,10 @@ for (let definition of ilib.definitions) {
         attr: `ilib-${definition.fileName}`
     };
 
+    let constructorArgs = ['private ngZone: NgZone', 'private changeDetectorRef: ChangeDetectorRef'];
+    if(template.rootRef) constructorArgs.push(`private ${template.rootRef + 'Ref'}: ElementRef`);
+    if(template.templateUsed) constructorArgs.push(`templateHost: IlTemplateHost`);
+
     let content = `
 import {
     Component,
@@ -35,7 +39,11 @@ import {
     HostListener,
     HostBinding,
     OnInit,
-    ChangeDetectionStrategy
+    ChangeDetectionStrategy,
+    ElementRef,
+    OnDestroy,
+    NgZone,
+    ChangeDetectorRef
 } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { ${definition.component} } from 'ilib';
@@ -56,7 +64,7 @@ ${
     providers: [${template.templateUsed ? 'IlTemplateHost' : ''}],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Il${definition.name}Component implements OnInit {
+export class Il${definition.name}Component implements OnInit, OnDestroy {
     private component: ${definition.component};
 
     @Input() _reactiveMode = false;
@@ -71,19 +79,45 @@ ${
         return `    @Output() ${event} = new EventEmitter();`;
     }).join('\n')
 }
+${
+    Object.keys(metadata.state || {}).map((prop) => {
+        return `    @Input() ${prop} = ${JSON.stringify(metadata.state[prop])};`
+    }).join('\n')
+}
 ${template.rootAttrs}
 
-    ${template.templateUsed ? `constructor(templateHost: IlTemplateHost) {}` : ''}
+    constructor(${constructorArgs.join(', ')}) {}
 
     ngOnInit() {
+        // NOTE: component should be intantiated in constructor, but it can be done only after removing of '_reactiveMode'
         this.component = new ${definition.component}({
             emitEvent: (name, e) => this[name].emit(e),
             getProp: (name) => this[name],
             setProp: this._reactiveMode ? () => {} : (name, value) => {
-                this[name] = value;
-                this[name + 'Change'].emit(value);
-            }
+                this.ngZone.run(() => {
+                    if(this[name] !== value) {
+                        this[name] = value;
+                        this[name + 'Change'].emit(value);
+                    }
+                })
+            },
+            getState: (name) => this[name],
+            setState: (name, value) => { 
+                this.ngZone.run(() => {
+                    if(this[name] !== value) {
+                        this[name] = value;
+                        this.changeDetectorRef.markForCheck();
+                    }
+                })
+            },
+            getRef: (name) => this[name + 'Ref'].nativeElement,
         });
+
+        ${ilib[definition.component].prototype.mounted ? 'this.component.mounted();' : ''}
+    }
+
+    ngOnDestroy() {
+        ${ilib[definition.component].prototype.unmounting ? 'this.component.unmounting();' : ''}
     }
 }
 

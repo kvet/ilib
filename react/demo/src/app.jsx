@@ -1,7 +1,7 @@
 import React from 'react';
 import { MyButton } from './button';
 import { Slotted } from './slotted';
-import { Button, ToggleButton, ButtonGroup, ToggleButtonGroup } from 'ilib-react';
+import { Button, ToggleButton, ButtonGroup, ToggleButtonGroup, Sizer } from 'ilib-react';
 import './app.css'
 
 export default class App extends React.Component {
@@ -62,11 +62,19 @@ export default class App extends React.Component {
                 <ToggleButtonGroup items={[1, 2, 3]} active={this.state.activeItem} onActivate={activateHandler}></ToggleButtonGroup>
                 <ToggleButtonGroup items={[1, 2, 3, 4, 5]} active={this.state.activeItem} onActivate={activateHandler}>{{
                     default: (data) => 
-                        <ToggleButton className={data.index === 2 ? 'greenButton' : ''} active={data.active} activeChange={data.setActive}>
+                        <ToggleButton className={data.index === 2 ? 'greenButton' : ''} active={data.active} onClick={data.activate}>
                             <i>{data.item}</i>
                         </ToggleButton>
                 }}</ToggleButtonGroup>
-        </div>
+
+                <h2>Sizer component</h2>
+                <Sizer>{{
+                    default: (data) => 
+                        <div style={{ border: '1px solid black' }}>
+                            <span>Caclulated Size: {data.width}x{data.height}</span>
+                        </div>
+                }}</Sizer>
+            </div>
         )
     }
 }

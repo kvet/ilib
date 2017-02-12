@@ -4,6 +4,7 @@ import {
     ClassToggle,
     EventListener,
     PropGetter,
+    StateGetter,
     Slot,
     ComponentHandler,
     LocalGetter,
@@ -83,6 +84,7 @@ export function template(node: Node, componentName: string, components: { [key: 
         };
         let tag = processNodeTag(node.tag);
         let attrs = processNodeAttrs(node.attrs);
+        if(node.ref) attrs = `ref="${node.ref}"\n` + attrs;
         
         return `<${tag}${attrs.length ? `\n${indent(`${attrs}`)}` : ''}>\n` +
                indent(processNodeChildrens(node.childrens)) +
@@ -136,9 +138,10 @@ export function template(node: Node, componentName: string, components: { [key: 
     };
 
     let processGetter = (getter: Getter): string => {
-        return ((getter: PropGetter|LocalGetter|ComponentCall|StaticValue|TemplateScopeGetter): string => {
+        return ((getter: PropGetter|StateGetter|LocalGetter|ComponentCall|StaticValue|TemplateScopeGetter): string => {
             switch (getter.subtype) {
                 case 'propGetter':
+                case 'stateGetter':
                     return `${<string>getter.name}`;
                 case 'componentCall':
                     let params = getter.params.map((param) => processGetter(param)).join(', ');
