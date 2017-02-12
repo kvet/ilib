@@ -6,6 +6,7 @@ import {
     PropGetter,
     StateGetter,
     Slot,
+    Handler,
     ComponentHandler,
     LocalGetter,
     TextNode,
@@ -139,16 +140,18 @@ export function template(node: DomNode, components: { [key: string]: { tag: stri
         })(getter as any)
     };
 
-    let processHandler = (handler: EventListener['handler'], options: { withinClass?: boolean, immediatlyInvocked?: boolean } = {}): string => {
+    let processHandler = (handler: Handler, options: { withinClass?: boolean, immediatlyInvocked?: boolean } = {}): string => {
         options = Object.assign({ withinClass: false, immediatlyInvocked: true }, options);
-        if (handler.type === 'componentHandler') {
-            let paramsString = handler.params.map((param) => processGetter(param)).concat(options.immediatlyInvocked ? ['$event'] : []).join(', ');
-            return `${options.withinClass ? 'this.' : ''}component.${<string>handler.name}${!options.immediatlyInvocked ? '.bind' : ''}(${!options.immediatlyInvocked ? 'component, ' : ''}${paramsString})`
-        } else if (handler.type === 'templateScopeHandler') {
-            return `data.${<string>handler.name}($event)`
-        } else {
-            throw unsupported('revent handler', handler)
-        }
+        return ((handler: ComponentHandler|TemplateScopeHandler): string => {
+            if (handler.subtype === 'componentHandler') {
+                let paramsString = handler.params.map((param) => processGetter(param)).concat(options.immediatlyInvocked ? ['$event'] : []).join(', ');
+                return `${options.withinClass ? 'this.' : ''}component.${<string>handler.name}${!options.immediatlyInvocked ? '.bind' : ''}(${!options.immediatlyInvocked ? 'component, ' : ''}${paramsString})`
+            } else if (handler.subtype === 'templateScopeHandler') {
+                return `data.${<string>handler.name}($event)`
+            } else {
+                throw unsupported('revent handler', handler)
+            }
+        })(handler as any)
     };
 
     let processRootAttrs = (attrs: DomNode['attrs']): string => {

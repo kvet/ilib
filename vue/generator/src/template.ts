@@ -1,6 +1,7 @@
 import {
     Node,
     DomNode,
+    Handler,
     ClassToggle,
     EventListener,
     PropGetter,
@@ -158,15 +159,17 @@ export function template(node: Node, componentName: string, components: { [key: 
         })(getter as any)
     };
 
-    let processHandler = (handler: EventListener['handler']): string => {
-        if (handler.type === 'componentHandler') {
-            let paramsString = handler.params.map(processGetter).concat('e').join(', ');
-            return `(e) => component.${<string>handler.name}(${paramsString})`
-        } else if (handler.type === 'templateScopeHandler') {
-                return processHandler(handler.originalHandler);
-        } else {
-            throw unsupported('event handler', handler)
-        }
+    let processHandler = (handler: Handler): string => {
+        return ((handler: ComponentHandler|TemplateScopeHandler): string => {
+            if (handler.subtype === 'componentHandler') {
+                let paramsString = handler.params.map(processGetter).concat('e').join(', ');
+                return `(e) => component.${<string>handler.name}(${paramsString})`
+            } else if (handler.subtype === 'templateScopeHandler') {
+                    return processHandler(handler.originalHandler);
+            } else {
+                throw unsupported('event handler', handler)
+            }
+        })(handler as any);
     };
 
     return {

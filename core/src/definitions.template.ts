@@ -79,16 +79,21 @@ export interface ComponentCall extends Getter {
 }
 
 
-export interface ComponentHandler extends Element {
-    readonly type: 'componentHandler'
+export interface Handler extends Element {
+    readonly type: 'handler'
+    readonly subtype: string
+}
+
+export interface ComponentHandler extends Handler {
+    readonly subtype: 'componentHandler'
     readonly name: string
     readonly params: Array<LocalGetter>
 }
 
-export interface TemplateScopeHandler extends Element {
-    readonly type: 'templateScopeHandler'
+export interface TemplateScopeHandler extends Handler {
+    readonly subtype: 'templateScopeHandler'
     readonly name: string
-    readonly originalHandler: ComponentHandler
+    readonly originalHandler: Handler
 }
 
 
@@ -137,7 +142,7 @@ let templateBuilderInternal = {
         return { type: 'getter', subtype: 'templateScopeGetter', name, originalGetter }
     },
     templateScopeHandler(name: TemplateScopeHandler['name'], originalHandler: TemplateScopeHandler['originalHandler']): TemplateScopeHandler {
-        return { type: 'templateScopeHandler', name, originalHandler }
+        return { type: 'handler', subtype: 'templateScopeHandler', name, originalHandler }
     },
 };
 
@@ -210,17 +215,16 @@ export interface JSXElementClass {
 }
 
 export interface JSXDomNodeProps { 
-    tag: 'div'|'button',
-    classNames?: { [key: string]: Getter },
-    eventListeners?: { [key: string]: ComponentHandler|TemplateScopeHandler }
-    ref?: string
+    tag: 'div'|'button';
+    classNames?: { [key: string]: Getter };
+    eventListeners?: { [key: string]: ComponentHandler|TemplateScopeHandler };
+    ref?: string;
 }
 
 export interface JSXComponentNodeProps { 
-    name: string,
-    props?: { [key: string]: Getter },
-    events?: { [key: string]: ComponentHandler|TemplateScopeHandler }
-    ref?: string
+    name: string;
+    props?: { [key: string]: Getter };
+    events?: { [key: string]: ComponentHandler|TemplateScopeHandler };
 }
 
 export interface JSXForTemplateNodeProps { 
@@ -274,7 +278,7 @@ export let h = {
                     return templateBuilder.eventListener(event, attrs.events[event])
                 });
 
-                return templateBuilder.domNode(templateBuilder.componentTag(attrs.name), [...props, ...events], childrens, attrs.ref);
+                return templateBuilder.domNode(templateBuilder.componentTag(attrs.name), [...props, ...events], childrens);
             } case 'forTemplate': {
                 let attrs = _attrs as JSXForTemplateNodeProps;
                 if(_childrens.length !== 1 || typeof _childrens[0] !== 'function')
@@ -329,6 +333,6 @@ export let h = {
         return { type: 'getter', subtype: 'componentCall', name, params }; 
     },
     componentHandler(name: ComponentHandler['name'], ...params: ComponentHandler['params']): ComponentHandler { 
-        return { type: 'componentHandler', name, params }; 
+        return { type: 'handler', subtype: 'componentHandler', name, params }; 
     },
 }
