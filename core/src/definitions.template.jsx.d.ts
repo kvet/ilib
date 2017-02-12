@@ -1,7 +1,7 @@
 declare namespace JSX {
     interface IntrinsicElements {}
     interface ElementClass {
-        type: string;
+        render: Function;
     }
     interface ElementAttributesProperty {
         props;
