@@ -194,7 +194,7 @@ export interface JSXForTemplateNodeProps {
 }
 
 export interface JSXTemplateNodeProps { 
-    dataFields: { [key: string]: Getter|ComponentHandler|TemplateScopeHandler }
+    [key: string]: Getter|ComponentHandler|TemplateScopeHandler
 }
 
 export interface JSXTextNode { 
@@ -252,14 +252,14 @@ export let h = {
                 if(childrens.length !== 1 || typeof childrens[0] !== 'function')
                     throw unsupported('not function children in forTemplate', childrens);
 
-                let value: LocalGetter;
+                let item: LocalGetter;
                 let index: LocalGetter;
-                let localChildrens = childrens[0](
-                    (): LocalGetter => value ? value : (value = helpers.localGetter('item')),
-                    (): LocalGetter => index ? index : (index = helpers.localGetter('index')),
-                );
+                let dataFieldsLocal = {};
+                Object.defineProperty(dataFieldsLocal, 'item', { get: (): LocalGetter => item ? item : (item = helpers.localGetter('item')) })
+                Object.defineProperty(dataFieldsLocal, 'index', { get: (): LocalGetter => index ? index : (index = helpers.localGetter('index')) })
+                let localChildrens = childrens[0](dataFieldsLocal);
                 localChildrens = Array.isArray(localChildrens) ? localChildrens : [localChildrens]; 
-                return { type: 'node', subtype: 'forTemplate', of: attrs.of, value, index, childrens: localChildrens } as ForTemplate;
+                return { type: 'node', subtype: 'forTemplate', of: attrs.of, value: item, index, childrens: localChildrens } as ForTemplate;
             }
         };
     },
@@ -269,13 +269,16 @@ export let h = {
                 if(childrens.length !== 1 || typeof childrens[0] !== 'function')
                     throw unsupported('not function children in template', childrens);
                 
-                let dataFieldsLocal: Template['dataFields'] = {};
-                let localChildrens = childrens[0](
-                    (name: string): TemplateScopeGetter => helpers.templateScopeGetter(name, attrs.dataFields[name] as Getter),
-                    (name: string): TemplateScopeHandler => helpers.templateScopeHandler(name, attrs.dataFields[name] as ComponentHandler)
-                );
+                let dataFields = attrs;
+                let dataFieldsLocal = Object.keys(dataFields).reduce((result, name) => {
+                    result[name] = dataFields[name].type === 'getter'
+                        ? helpers.templateScopeGetter(name, dataFields[name] as Getter)
+                        : helpers.templateScopeHandler(name, dataFields[name] as ComponentHandler)
+                    return result;
+                }, {});
+                let localChildrens = childrens[0](dataFieldsLocal);
                 localChildrens = Array.isArray(localChildrens) ? localChildrens : [localChildrens]; 
-                return { type: 'node', subtype: 'template', name: 'default', dataFields: attrs.dataFields, childrens: localChildrens } as Template;
+                return { type: 'node', subtype: 'template', name: 'default', dataFields, childrens: localChildrens } as Template;
             }
         };
     },
