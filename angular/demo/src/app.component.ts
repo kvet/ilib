@@ -37,22 +37,22 @@ import {
 
     <h2>ToggleButton component</h2>
     <button ilib-button [disabled]="tbtn.active" (onClick)="clicked('btn')">Hello World!</button>
-    <button ilib-toggle_button #tbtn [active]="false">
+    <button ilib-toggle-button #tbtn [active]="false">
         < {{tbtn.active ? 'enable' : 'disable'}}
     </button>
     
     <h2>ButtonGroup component</h2>
-    <div ilib-button_group>
+    <div ilib-button-group>
         <button ilib-button #btnInGroup [disabled]="false" (onClick)="clicked('btnInGroup')">Hello World!</button>
-        <button ilib-toggle_button [(active)]="btnInGroup.disabled">
+        <button ilib-toggle-button [(active)]="btnInGroup.disabled">
             < {{btnInGroup.disabled ? 'enable' : 'disable'}}
         </button>
     </div>
     
     <h2>ToggleButtonGroup component</h2>
-    <div ilib-toggle_button_group [items]="[1, 2, 3]" [(active)]="activeItem"></div>
-    <div ilib-toggle_button_group [items]="[1, 2, 3, 4, 5]" [(active)]="activeItem">
-        <button ilib-toggle_button [_reactiveMode]="true" *ilTemplate="let data" [active]="data.active" (onClick)="data.activate($event)" [class.greenButton]="data.index === 2">
+    <div ilib-toggle-button-group [items]="[1, 2, 3]" [(active)]="activeItem"></div>
+    <div ilib-toggle-button-group [items]="[1, 2, 3, 4, 5]" [(active)]="activeItem">
+        <button ilib-toggle-button [_reactiveMode]="true" *ilTemplate="let data" [active]="data.active" (onClick)="data.activate($event)" [class.greenButton]="data.index === 2">
             <i>{{data.item}}</i>
         </button>
     </div>
