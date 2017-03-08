@@ -1,17 +1,16 @@
 import * as fs from 'fs';
-import * as path from'path';
+import * as path from 'path';
 import * as ilib from '../../../core/dist';
 import { template as buildTemplate } from './template';
+import { unique } from 'shorthash';
 
-const HOST_TAG = "data-ilibhost";
-
-let componentIds: { [key: string]: { shadowId: string } } = {};
+const HOST_TAG = "data-ilibhost-";
 
 let stringifyStyles = (componentName) => {
     return {
-        host: () => `[${HOST_TAG}${<string>componentIds[componentName].shadowId}]`,
-        slotted: (selector) => `[${HOST_TAG}${<string>componentIds[componentName].shadowId}] ${selector}`,
-        componentSelector: (name) => `[${HOST_TAG}${<string>componentIds[name].shadowId}]`
+        host: () => `[${HOST_TAG}${unique(componentName)}]`,
+        slotted: (selector) => `[${HOST_TAG}${unique(componentName)}] ${selector}`,
+        componentSelector: (name) => `[${HOST_TAG}${unique(name)}]`
     };
 };
 
@@ -19,10 +18,8 @@ try {
     fs.mkdirSync(path.resolve(__dirname, `../../code/src/generated`))
 } catch(e) {}
 for (let definition of ilib.definitions) {
-    componentIds[definition.name] = { shadowId: '' + Math.floor(Math.random() * 10000) };
-
     let metadata: ilib.ComponentMetadata = ilib[definition.metadata];
-    let template = buildTemplate(ilib[definition.template], definition.name, componentIds);
+    let template = buildTemplate(ilib[definition.template], definition.name);
     let styles = metadata.styles(stringifyStyles(definition.name));
 
     let content = `

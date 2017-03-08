@@ -21,9 +21,10 @@ import {
     Template,
     TemplateScopeGetter,
     TemplateScopeHandler
-} from '../../../core/dist/definitions.template'
+} from '../../../core/dist/definitions.template';
+import { unique } from 'shorthash';
 
-const HOST_TAG = "data-ilibhost";
+const HOST_TAG = "data-ilibhost-";
 
 let indent = (str: string): string =>
     str.split('\n').map(l => `    ${l}`).join('\n');
@@ -34,7 +35,7 @@ let cap = (string: string): string =>
 let unsupported = (name: string, data: any) =>
     `Unsupported ${name}: ${JSON.stringify(data)}`;
 
-export function template(node: Node, componentName: string, components: { [key: string]: { shadowId: string } }): { content: string, usedComponents: string[] } {
+export function template(node: Node, componentName: string): { content: string, usedComponents: string[] } {
     let usedComponents = [];
 
     let processDomNode = (node: DomNode) => {
@@ -49,13 +50,13 @@ export function template(node: Node, componentName: string, components: { [key: 
             }
         };
         let processNodeAttrs = (attrs: DomNode['attrs']): string => {
-            let shadowId = `${HOST_TAG}${<string>components[componentName].shadowId}`
+            let shadowId = `${HOST_TAG}${unique(componentName)}`
             let classNames = node.attrs
                 .filter(attr => attr.type === 'classToggle')
                 .map((classToggle: ClassToggle) => {
                     return `(${processGetter(classToggle.state)} ? '${classToggle.name} ' : '')`
                 });
-            let classString = `className={this.props.className + ' '${classNames.length ? ' + ' : ''}${<string>classNames.join(' + ')}}`
+            let classString = `className={(this.props.className || '') + ' '${classNames.length ? ' + ' : ''}${<string>classNames.join(' + ')}}`
             let attrStrings = node.attrs
                 .filter(attr => attr.type !== 'classToggle')
                 .map(attr => {
