@@ -1,0 +1,24 @@
+:host {
+    display: inline-block;
+}
+
+::slotted(button),
+::slotted(toggle-button) { 
+    float: left;
+    position: relative;
+    border-radius: 0;
+}
+::slotted(button):first-child,
+::slotted(toggle-button):first-child {
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+::slotted(button):last-child,
+::slotted(toggle-button):last-child {
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+::slotted(button):not(:first-child),
+::slotted(toggle-button):not(:first-child) {
+    margin-left: -1px;
+}

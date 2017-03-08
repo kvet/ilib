@@ -18,9 +18,6 @@ export class ToggleButtonGroupComponent implements Component {
 };
 
 export let toggleButtonGroupComponentMetadata: ComponentMetadata = {
-    styles: (e) => {
-        return ``;
-    },
     events: [
         'onActivate'
     ],

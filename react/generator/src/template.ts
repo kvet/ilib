@@ -22,9 +22,7 @@ import {
     TemplateScopeGetter,
     TemplateScopeHandler
 } from '../../../core/dist/definitions.template';
-import { unique } from 'shorthash';
-
-const HOST_TAG = "data-ilibhost-";
+import { uniqTag } from './utils';
 
 let indent = (str: string): string =>
     str.split('\n').map(l => `    ${l}`).join('\n');
@@ -50,7 +48,7 @@ export function template(node: Node, componentName: string): { content: string, 
             }
         };
         let processNodeAttrs = (attrs: DomNode['attrs']): string => {
-            let shadowId = `${HOST_TAG}${unique(componentName)}`
+            let shadowId = uniqTag(componentName);
             let classNames = node.attrs
                 .filter(attr => attr.type === 'classToggle')
                 .map((classToggle: ClassToggle) => {

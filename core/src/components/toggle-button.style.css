@@ -1,0 +1,20 @@
+/* @import './button.style' */
+
+:host {
+    margin: 0;
+    display: inline-block;
+    border: 1px solid red;
+    border-radius: 5px;
+    padding: 5px 10px;
+    transition: all linear .2s;
+    color: #373a3c;
+    background-color: #fff;
+    border-color: #adadad;
+}
+:host.active {
+    background-color: #ddd;
+}
+:host.disabled {
+    cursor: not-allowed;
+    opacity: .65;
+}

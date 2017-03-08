@@ -2,28 +2,24 @@ import * as fs from 'fs';
 import * as path from'path';
 import * as ilib from '../../../core/dist';
 import { template as buildTemplate } from './template';
+import { styles as buildStyles } from './styles';
 
 let cmpsCache = {};
-
-let stringifyStyles = {
-    host: () => ':host',
-    slotted: (selector) => `:host >>> ${selector}`,
-    componentSelector: (name) => `[ilib-${ilib.definitions.filter((d) => d.name === name)[0].fileName}]`
-};
 
 try {
     fs.mkdirSync(path.resolve(__dirname, `../../code/src/generated`))
 } catch(e) {}
 
-for (let definition of ilib.definitions) {
+ilib.definitions.forEach(async (definition) => {
     let metadata: ilib.ComponentMetadata = ilib[definition.metadata];
     let template = buildTemplate(ilib[definition.template], cmpsCache);
-    let styles = metadata.styles(stringifyStyles);
 
     cmpsCache[definition.name] = {
         tag: template.tag,
         attr: `ilib-${definition.fileName}`
     };
+
+    let styles = definition.styles ? (await buildStyles(definition.styles)) : '';
 
     let constructorArgs = ['private ngZone: NgZone', 'private changeDetectorRef: ChangeDetectorRef'];
     if(template.rootRef) constructorArgs.push(`private ${template.rootRef + 'Ref'}: ElementRef`);
@@ -129,7 +125,7 @@ ${template.rootAttrs}
 export class Il${definition.name}Module {}
 `;
     fs.writeFileSync(path.resolve(__dirname, `../../code/src/generated/${definition.fileName}.ts`), content);
-}
+})
 
 fs.writeFileSync(path.resolve(__dirname, `../../code/src/generated/index.ts`), ilib.definitions.map((d) => {
     return `export * from './${d.fileName}';`;

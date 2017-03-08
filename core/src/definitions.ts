@@ -1,4 +1,5 @@
 export interface Component {
+    mounting?(): void;
     mounted?(): void;
     unmounting?(): void;
 }
@@ -12,20 +13,7 @@ export interface ComponentBridge {
     emitEvent(name: string, data: any): void;
 }
 
-export interface ComponentStyle {
-    (builder: ComponentStyleBuilder): string;
-}
-
-export interface ComponentStyleBuilder {
-    host: () => string; 
-    slotted: (selector: string) => string;
-
-    componentSelector: (name: string) => string;
-}
-
 export interface ComponentMetadata {
-    styles: ComponentStyle;
-    
     events: string[];
     state?: { [key: string]: any};
     props: { [key: string]: any };

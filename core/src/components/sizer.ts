@@ -16,9 +16,6 @@ export class SizerComponent implements Component {
 };
 
 export let sizerComponentMetadata: ComponentMetadata = {
-    styles: (e) => {
-        return ``;
-    },
     events: [],
     state: {
         width: 0,

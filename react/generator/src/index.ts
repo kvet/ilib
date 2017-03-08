@@ -2,30 +2,22 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as ilib from '../../../core/dist';
 import { template as buildTemplate } from './template';
-import { unique } from 'shorthash';
-
-const HOST_TAG = "data-ilibhost-";
-
-let stringifyStyles = (componentName) => {
-    return {
-        host: () => `[${HOST_TAG}${unique(componentName)}]`,
-        slotted: (selector) => `[${HOST_TAG}${unique(componentName)}] ${selector}`,
-        componentSelector: (name) => `[${HOST_TAG}${unique(name)}]`
-    };
-};
+import { styles as buildStyles } from './styles';
 
 try {
     fs.mkdirSync(path.resolve(__dirname, `../../code/src/generated`))
 } catch(e) {}
-for (let definition of ilib.definitions) {
+ilib.definitions.forEach(async (definition) => {
     let metadata: ilib.ComponentMetadata = ilib[definition.metadata];
     let template = buildTemplate(ilib[definition.template], definition.name);
-    let styles = metadata.styles(stringifyStyles(definition.name));
+    let styles = definition.styles ? (await buildStyles(definition.styles, definition.name)) : null;
 
     let content = `
 import { Component, createElement } from 'react';
 import { ${definition.component} } from 'ilib';
-import './${definition.fileName}.css';
+${
+    styles ? `import './${definition.fileName}.css';` : ''
+}
 ${
     template.usedComponents.map(name => {
         let definition = ilib.definitions.filter(c => c.name == name)[0];
@@ -71,8 +63,10 @@ ${template.content}
     try {
         fs.mkdirSync(path.resolve(__dirname, `../../code/dist/generated`))
     } catch(e) {}
-    fs.writeFileSync(path.resolve(__dirname, `../../code/dist/generated/${definition.fileName}.css`), styles);
-}
+    if(styles) {
+        fs.writeFileSync(path.resolve(__dirname, `../../code/dist/generated/${definition.fileName}.css`), styles);
+    }
+})
 
 fs.writeFileSync(path.resolve(__dirname, `../../code/src/generated/index.js`), ilib.definitions.map((d) => {
     return `export * from './${d.fileName}';`;
