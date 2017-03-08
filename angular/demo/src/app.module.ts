@@ -11,6 +11,7 @@ import {
   IlSizerModule
 } from 'ilib-ng';
 import { MyButtonModule } from './button.component';
+import { HocExampleModule } from './hoc.component';
 
 @NgModule({
   declarations: [AppComponent],
@@ -23,7 +24,8 @@ import { MyButtonModule } from './button.component';
     IlButtonGroupModule,
     IlToggleButtonGroupModule,
     IlSizerModule,
-    MyButtonModule
+    MyButtonModule,
+    HocExampleModule
   ],
   bootstrap: [AppComponent],
 })

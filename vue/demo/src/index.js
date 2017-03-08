@@ -2,6 +2,7 @@ import Vue from 'vue'
 import { IlButton, IlToggleButton, IlButtonGroup, IlToggleButtonGroup, IlSizer } from 'ilib-vue'
 import './index.css'
 import { Slotted, ScopedSlotted } from './slotted'
+import { HOCProvider, HOCTransformer, HOCDestination } from './hoc'
 
 let App = {
     data: function() {
@@ -46,6 +47,13 @@ let App = {
                 <template slot="firstName" scope="scope">{{scope.data}}</template>
                 <template slot="lastName" scope="scope">{{scope.data}}</template>
             </ScopedSlotted>
+            
+            <h2>HOC example</h2>
+            <HOCProvider>
+                <HOCTransformer>
+                    <HOCDestination/>
+                </HOCTransformer>
+            </HOCProvider>
 
             <h2>Button component</h2>
             <IlButton @onClick="alert('clicked')">Hello world!</IlButton>
@@ -88,7 +96,11 @@ let App = {
                 </template>
             </IlSizer>
         </div>`,
-    components: { IlButton, IlToggleButton, IlButtonGroup, IlToggleButtonGroup, IlSizer, Slotted, ScopedSlotted }
+    components: {
+        IlButton, IlToggleButton, IlButtonGroup, IlToggleButtonGroup, IlSizer,
+        Slotted, ScopedSlotted,
+        HOCProvider, HOCTransformer, HOCDestination
+    }
 };
 
 new Vue({

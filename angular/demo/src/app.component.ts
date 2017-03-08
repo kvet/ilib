@@ -31,6 +31,13 @@ import {
         <template scopedSlotted let-scope scopedSlottedOf="lastName">{{scope.data}}</template>
     </scoped-slotted>
 
+    <h2>HOC example</h2>
+    <template hoc-provider let-string>
+        <template hoc-transformer let-ustring [data]="string">
+            <hoc-destination [value]="ustring"></hoc-destination>
+        </template>
+    </template>
+
     <h2>Button component</h2>
     <button ilib-button (onClick)="clicked('g')"><b>Hello World Again!</b></button>
     <button ilib-button class="greenButton" (onClick)="clicked('g1')"><b>Hello Green World!</b></button>
