@@ -13,7 +13,7 @@ module.exports = {
             {
                 test: /\.jsx?$/,
                 exclude: /(node_modules|bower_components|public\/)/,
-                loader: "babel"
+                loader: "babel-loader"
             },
             { 
                 test: /\.css$/, 
@@ -26,7 +26,7 @@ module.exports = {
             'ilib': path.join(__dirname, '../../core/dist'),
             'ilib-react': path.join(__dirname, '../code/dist')
         },
-        extensions: ["", ".webpack.js", ".web.js", ".js", ".jsx"]
+        extensions: [".webpack.js", ".web.js", ".js", ".jsx"]
     },
     devtool: 'eval'
 }

@@ -1,7 +1,7 @@
 import { Component, ComponentBridge, ComponentMetadata } from '../definitions';
 
-export class ToggleButtonComponent implements Component {
-    constructor(private bridge: ComponentBridge) {}
+export class ToggleButtonComponent {
+    constructor(public bridge: ComponentBridge) {}
 
     get disabled() {
         return this.bridge.getProp('disabled');

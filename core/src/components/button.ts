@@ -1,6 +1,6 @@
 import { Component, ComponentBridge, ComponentMetadata } from '../definitions';
 
-export class ButtonComponent implements Component {
+export class ButtonComponent {
     constructor(private bridge: ComponentBridge) {}
 
     get disabled() {

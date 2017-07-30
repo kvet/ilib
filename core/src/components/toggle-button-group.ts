@@ -1,6 +1,6 @@
 import { Component, ComponentBridge, ComponentMetadata } from '../definitions';
 
-export class ToggleButtonGroupComponent implements Component {
+export class ToggleButtonGroupComponent {
     constructor(private bridge: ComponentBridge) {}
 
     get items() {
