@@ -3,16 +3,8 @@ import { Component, ComponentBridge, ComponentMetadata } from '../definitions';
 export class ToggleButtonComponent {
     constructor(public bridge: ComponentBridge) {}
 
-    get disabled() {
-        return this.bridge.getProp('disabled');
-    }
-
-    get active() {
-        return this.bridge.getProp('active');
-    }
-
     clickHandler(e) {
-        if(!this.disabled) {
+        if(!this.bridge.getProp('disabled')) {
             this.bridge.setProp('active', !this.bridge.getProp('active'));
             this.bridge.emitEvent('onClick', e);
         }

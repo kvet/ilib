@@ -1,9 +1,12 @@
-import { h } from '../definitions.template';
+import { h, Node } from '../definitions.template';
+import { toggleButtonComponentMetadata } from './toggle-button';
 
-export let template = (
+export let template = h.component(toggleButtonComponentMetadata, (
+    { disabled, active },
+) => (
     <h.domNode tag="button"
-        classNames={{ disabled: h.propGetter('disabled'), active: h.propGetter('active') }}
+        classNames={{ disabled, active }}
         eventListeners={{ click: h.componentHandler('clickHandler') }}>
         <h.slot/>
     </h.domNode>
-);
+));

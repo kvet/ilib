@@ -2,10 +2,6 @@ import { Component, ComponentBridge, ComponentMetadata } from '../definitions';
 
 export class ToggleButtonGroupComponent {
     constructor(private bridge: ComponentBridge) {}
-
-    get items() {
-        return this.bridge.getProp('items');
-    }
     
     isActive(index) {
         return this.bridge.getProp('active') === index;

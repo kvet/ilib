@@ -1,9 +1,12 @@
-import { h } from '../definitions.template';
+import { h, Node } from '../definitions.template';
+import { buttonComponentMetadata } from './button';
 
-export let template = (
+export let template = h.component(buttonComponentMetadata, (
+    { disabled },
+) => (
     <h.domNode tag="button"
-        classNames={{ disabled: h.propGetter('disabled') }}
+        classNames={{ disabled }}
         eventListeners={{ click: h.componentHandler('clickHandler') }}>
         <h.slot/>
     </h.domNode>
-);
+));

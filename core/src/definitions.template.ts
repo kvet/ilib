@@ -1,3 +1,5 @@
+import { ComponentMetadata } from './definitions';
+
 // Schema
 
 export interface Element {
@@ -137,6 +139,12 @@ export interface ComponentTag extends Element {
 
 let helpers = {
     // Access
+    propGetter(name: PropGetter['name']): PropGetter { 
+        return { type: 'getter', subtype: 'propGetter', name };
+    },
+    stateGetter(name: StateGetter['name']): StateGetter { 
+        return { type: 'getter', subtype: 'stateGetter', name };
+    },
     staticValue(value: StaticValue['value']): StaticValue {
         return { type: 'getter', subtype: 'staticValue', value }
     },
@@ -302,13 +310,21 @@ export let h = {
         }
     },
 
+    // Temp
+    component(metadata: ComponentMetadata, rootTemplate: (
+        props: { [key: string]: PropGetter },
+        state: { [key: string]: PropGetter }
+    ) => Node): Node {
+        const propsGetters = Object.keys(metadata.props)
+            .map(name => ({ name, getter: helpers.propGetter(name) }))
+            .reduce((acc, { name, getter }) => ({ ...acc, [name]: getter }), {});
+        const stateGetters = Object.keys(metadata.state || {})
+            .map(name => ({ name, getter: helpers.stateGetter(name) }))
+            .reduce((acc, { name, getter }) => ({ ...acc, [name]: getter }), {});
+        return rootTemplate(propsGetters, stateGetters);
+    },
+
     // Access
-    propGetter(name: PropGetter['name']): PropGetter { 
-        return { type: 'getter', subtype: 'propGetter', name };
-    },
-    stateGetter(name: StateGetter['name']): StateGetter { 
-        return { type: 'getter', subtype: 'stateGetter', name };
-    },
     componentCall(name: ComponentCall['name'], ...params: ComponentCall['params']): ComponentCall { 
         return { type: 'getter', subtype: 'componentCall', name, params }; 
     },

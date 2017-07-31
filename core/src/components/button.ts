@@ -3,12 +3,8 @@ import { Component, ComponentBridge, ComponentMetadata } from '../definitions';
 export class ButtonComponent {
     constructor(private bridge: ComponentBridge) {}
 
-    get disabled() {
-        return this.bridge.getProp('disabled');
-    }
-
     clickHandler(e) {
-        if(!this.disabled) {
+        if(!this.bridge.getProp('disabled')) {
             this.bridge.emitEvent('onClick', e);
         }
     }
